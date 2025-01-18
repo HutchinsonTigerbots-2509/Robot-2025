@@ -4,16 +4,32 @@
 
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import com.ctre.phoenix6.hardware.TalonFX;
 
-public class vision extends SubsystemBase {
-  /** Creates a new Vision. */
-  public vision() {
-    
-  }
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.IDConstants;
+
+public class climb extends SubsystemBase {
+  /** Creates a new climb. */
+
+  public TalonFX mClimber = new TalonFX(IDConstants.kClimbID);
+
+  public climb() {}
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
   }
+
+
+  public void climbUp() {
+    mClimber.set(1);
+  }
+
+
+  public void climbDown() {
+    mClimber.set(-1);
+  }
+
+
 }

@@ -18,15 +18,15 @@ public class IDConstants {
 
     //     *****     INTAKE/LIFT     *****     //
 
-    public static final double kLiftID = 20;
-    public static final double kCoralIntakeID = 21;
-    public static final double kAlgaeIntakeID = 22;
+    public static final int kLiftID = 20;
+    public static final int kCoralIntakeID = 21;
+    public static final int kAlgaeIntakeID = 22;
 
 
 
     //     *****     CLIMB     *****     //
 
-    public static final double kClimbID = 30;
+    public static final int kClimbID = 30;
 
 
 
