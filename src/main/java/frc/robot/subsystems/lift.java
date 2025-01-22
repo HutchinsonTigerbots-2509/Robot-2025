@@ -9,36 +9,32 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.IDConstants;
 
-public class climb extends SubsystemBase {
-  /** Creates a new climb. */
+public class lift extends SubsystemBase {
+  /** Creates a new lift. */
 
-  public TalonFX mClimber = new TalonFX(IDConstants.kClimbID);
+  TalonFX mLift = new TalonFX(IDConstants.kLiftID);
 
-  public climb() {}
+
+  public lift() {}
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
   }
 
-
-  public void climbUp() {
-    mClimber.set(1);
+  public void liftUp() {
+    mLift.set(1);
   }
 
-
-  public void climbDown() {
-    mClimber.set(-1);
+  public void liftDown() {
+    mLift.set(-1);
   }
 
-
-  public void climbStop() {
-    mClimber.set(0);
+  public void liftStop() {
+    mLift.set(0);
   }
 
-  public double getClimbSpeed() {
-    return mClimber.get();
+  public double liftSpeed() {
+    return mLift.get();
   }
-
-
 }

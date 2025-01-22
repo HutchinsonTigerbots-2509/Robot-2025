@@ -9,36 +9,33 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.IDConstants;
 
-public class climb extends SubsystemBase {
-  /** Creates a new climb. */
+public class intake extends SubsystemBase {
+  /** Creates a new intake. */
 
-  public TalonFX mClimber = new TalonFX(IDConstants.kClimbID);
+  TalonFX mIntake = new TalonFX(IDConstants.kAlgaeIntakeID);
 
-  public climb() {}
+
+  public intake() {}
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
   }
 
-
-  public void climbUp() {
-    mClimber.set(1);
+  public void intakeIn() {
+    mIntake.set(1);
   }
 
-
-  public void climbDown() {
-    mClimber.set(-1);
+  public void intakeOut() {
+    mIntake.set(-1);
   }
 
-
-  public void climbStop() {
-    mClimber.set(0);
+  public void intakeStop() {
+    mIntake.set(0);
   }
 
-  public double getClimbSpeed() {
-    return mClimber.get();
+  public double intakeSpeed() {
+    return mIntake.get();
   }
-
-
+  
 }

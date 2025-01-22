@@ -11,6 +11,8 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -20,19 +22,31 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants.IDConstants;
 import frc.robot.Constants.SwerveConstants;
-import frc.robot.subsystems.climb;
-import frc.robot.subsystems.drivetrain;
-import frc.robot.subsystems.vision;
+import frc.robot.subsystems.*;
+import frc.robot.Dashboard;
 
 public class RobotContainer {
+
+    //     *****     NUMBERS     *****     //
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+
     private double MaxSpeed = SwerveConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
 
 
+
+    //     *****     USER INPUTS     *****     //
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+
     final CommandXboxController jJoystick = new CommandXboxController(IDConstants.kControllerID);
     final Joystick jButtonBoardPrimary = new Joystick(IDConstants.kPrimaryID);
     final Joystick jButtonBoardSecondary = new Joystick(IDConstants.kSecondaryID);
+
+    SendableChooser<String> autoSelect = new SendableChooser<>();
     
+
+    //     *****     OBJECTS     *****     //
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
     /* Setting up bindings for necessary control of the swerve drive platform */
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
@@ -41,16 +55,25 @@ public class RobotContainer {
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
-    private final Telemetry logger = new Telemetry(MaxSpeed);
+    //private final Telemetry logger = new Telemetry(MaxSpeed);
 
 
     //     *****     SUBSYSTEMS     *****     //
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
     public final drivetrain sDrivetrain = SwerveConstants.createDrivetrain();
     public final climb sClimb = new climb();
     public final vision sVision = new vision();
+    public final lift sLift = new lift();
+    public final intake sIntake = new intake();
+    public final grabber sGrabber = new grabber();
+
+    public final Dashboard dashboard = new Dashboard();
 
 
+
+    //     *****     DEFAULT COMMANDS     *****     //
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
 
 
@@ -60,7 +83,14 @@ public class RobotContainer {
 
     private void configureBindings() {
 
-        //  PREMADE -----------------------------
+        //     *****     DEFAULT COMMANDS     *****     //
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+
+
+
+
+        //     *****     PREMADE     *****     //
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
 
 
@@ -91,11 +121,17 @@ public class RobotContainer {
         // reset the field-centric heading on left bumper press
                                             //jJoystick.leftBumper().onTrue(sDrivetrain.runOnce(() -> sDrivetrain.seedFieldCentric()));
 
-        sDrivetrain.registerTelemetry(logger::telemeterize);
+        //sDrivetrain.registerTelemetry(logger::telemeterize);
 
 
-        // END PREMADE ------------------------------
+        //     *****     END PREMADE     *****      //
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
+
+
+
+        //     *****     BUTTON MAPPING     *****     //
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
         // Trigger ClimbUpBtn;
         // ClimbUpBtn = new JoystickButton(jButtonBoardPrimary, 5);
         // ClimbUpBtn.whileTrue(new RunCommand(() -> sClimb.climbUp()));
@@ -106,6 +142,12 @@ public class RobotContainer {
 
         jJoystick.leftBumper().whileTrue(new RunCommand(() -> sClimb.climbUp()));
         jJoystick.rightBumper().whileTrue(new RunCommand(() -> sClimb.climbDown()));
+
+
+        //     *****     AUTO CHOOSER     *****     //
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+
+        SmartDashboard.putData(autoSelect);
 
     }
 

@@ -5,40 +5,22 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.ControlModeValue;
 
+import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.IDConstants;
 
-public class climb extends SubsystemBase {
-  /** Creates a new climb. */
+public class grabber extends SubsystemBase {
+  /** Creates a new grabber. */
 
-  public TalonFX mClimber = new TalonFX(IDConstants.kClimbID);
-
-  public climb() {}
+  public TalonFX mGrabber = new TalonFX(IDConstants.kCoralGrabberID);
+  
+  public grabber() {
+  }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
   }
-
-
-  public void climbUp() {
-    mClimber.set(1);
-  }
-
-
-  public void climbDown() {
-    mClimber.set(-1);
-  }
-
-
-  public void climbStop() {
-    mClimber.set(0);
-  }
-
-  public double getClimbSpeed() {
-    return mClimber.get();
-  }
-
-
 }

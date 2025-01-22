@@ -19,7 +19,7 @@ public class IDConstants {
     //     *****     INTAKE/LIFT     *****     //
 
     public static final int kLiftID = 20;
-    public static final int kCoralIntakeID = 21;
+    public static final int kCoralGrabberID = 21;
     public static final int kAlgaeIntakeID = 22;
 
 
