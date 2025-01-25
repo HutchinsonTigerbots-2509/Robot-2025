@@ -14,7 +14,7 @@ import frc.robot.Constants.IDConstants;
 public class grabber extends SubsystemBase {
   /** Creates a new grabber. */
 
-  public TalonFX mGrabber = new TalonFX(IDConstants.kCoralGrabberID);
+  public TalonFX mGrabber = new TalonFX(IDConstants.kCoralIntakeID);
   
   public grabber() {
   }

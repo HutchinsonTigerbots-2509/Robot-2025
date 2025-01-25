@@ -130,7 +130,7 @@ public class RobotContainer {
 
 
 
-        //     *****     BUTTON MAPPING     *****     //
+        //     *****     BUTTON BIND/MAPPING     *****     //
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
         // Trigger ClimbUpBtn;
         // ClimbUpBtn = new JoystickButton(jButtonBoardPrimary, 5);
@@ -144,7 +144,7 @@ public class RobotContainer {
         jJoystick.rightBumper().whileTrue(new RunCommand(() -> sClimb.climbDown()));
 
 
-        //     *****     AUTO CHOOSER     *****     //
+        //     *****     AUTONOMOUS PATH CHOOSER     *****     //
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
         SmartDashboard.putData(autoSelect);
