@@ -7,6 +7,7 @@ package frc.robot;
 import static edu.wpi.first.units.Units.*;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+import com.pathplanner.lib.auto.NamedCommands;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -79,7 +80,28 @@ public class RobotContainer {
 
     public RobotContainer() {
         configureBindings();
+        namedCommands();
     }
+
+    private void namedCommands() {
+
+        for (int n = 0; n < 5; n++) {
+        NamedCommands.registerCommand("Intake In" + n, new RunCommand(() -> sIntake.intakeIn()).withTimeout(n));
+        NamedCommands.registerCommand("Intake Out" + n, new RunCommand(() -> sIntake.intakeOut()).withTimeout(n));
+        NamedCommands.registerCommand("Climb Up" + n, new RunCommand(() -> sClimb.climbUp()).withTimeout(n));
+        NamedCommands.registerCommand("Climb Down" + n, new RunCommand(() -> sClimb.climbDown()).withTimeout(n));
+        NamedCommands.registerCommand("Lift Up" + n, new RunCommand(() -> sLift.liftUp()).withTimeout(n));
+        NamedCommands.registerCommand("Lift Down" + n, new RunCommand(() -> sLift.liftDown()).withTimeout(n));
+        }
+
+        
+
+
+
+
+
+    }
+
 
     private void configureBindings() {
 
@@ -154,4 +176,5 @@ public class RobotContainer {
     public Command getAutonomousCommand() {
         return Commands.print("No autonomous command configured");
     }
+    
 }
