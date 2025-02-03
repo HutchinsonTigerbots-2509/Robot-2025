@@ -5,18 +5,13 @@
 package frc.robot.subsystems;
 
 import java.io.IOException;
-import java.util.function.Supplier;
-
 import org.json.simple.parser.ParseException;
 
-import com.ctre.phoenix6.hardware.Pigeon2;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
-import frc.robot.RobotContainer;
-import frc.robot.subsystems.drivetrain;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -25,7 +20,6 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class pathPlannerDrive extends SubsystemBase {
@@ -102,6 +96,7 @@ public class pathPlannerDrive extends SubsystemBase {
     // This method will be called once per scheduler run
   }
 
+  //** Returns the List of SwerveModulePositions in ( F:LR  R:LR ) order */
   public SwerveModulePosition[] getModulePositions(drivetrain sDrivetrain) {
 
     SwerveModulePosition FL = sDrivetrain.getModule(0).getPosition(false);
@@ -116,6 +111,7 @@ public class pathPlannerDrive extends SubsystemBase {
     return ModPositions;
   }
 
+  //** Returns the list of SwerveModuleStates in ( F:LR  R:LR ) order */
   public SwerveModuleState[] getModuleStates(drivetrain sDrivetrain) {
     SwerveModuleState FL = sDrivetrain.getModule(0).getCurrentState();
     SwerveModuleState FR = sDrivetrain.getModule(1).getCurrentState();
@@ -129,30 +125,37 @@ public class pathPlannerDrive extends SubsystemBase {
     return ModStates;
   }
 
+  //** Returns the kinematics of the swervedrive from drivetrain */
   public SwerveDriveKinematics getKinematics(drivetrain sDrivetrain) {
     SwerveDriveKinematics kinematics = sDrivetrain.getKinematics();
     return kinematics;
   }
 
+  //** Returns the current Rotation2d of the robot from the pigeon2 */
   public Rotation2d getRotation2d(drivetrain sDrivetrain) {
     Rotation2d pos = sDrivetrain.getPigeon2().getRotation2d();
     return pos;
   }
 
+  //** Returns the current Position2d of the robots drivetrain using an estimator */
   public Pose2d getPose2d(SwerveDrivePoseEstimator estimator) {
     Pose2d pos2d = estimator.getEstimatedPosition();
     return pos2d;
   }
   
+  //** Resets the Position2d of the swerve estimator */
   public void resetPos2d(SwerveDrivePoseEstimator estimator, Pose2d pos) {
     estimator.resetPose(pos);
   }
 
+  //** Returns the current ChassisSpeeds of the drivetrain */
   public ChassisSpeeds getChassisSpeeds(drivetrain sDrivetrain) {
     ChassisSpeeds chassisSpeeds = sDrivetrain.getKinematics().toChassisSpeeds(getModuleStates(sDrivetrain));
     return chassisSpeeds;
   }
 
-  public void driveChassis(drivetrain sDrivetrain) {}
-
+  //** Drives the robot with given speeds */
+  public void driveChassis(drivetrain sDrivetrain) {
+    //TODO
+  }
 }

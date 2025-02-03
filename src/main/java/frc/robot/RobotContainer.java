@@ -7,6 +7,7 @@ package frc.robot;
 import static edu.wpi.first.units.Units.*;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
@@ -87,7 +88,7 @@ public class RobotContainer {
     private void namedCommands() {
 
         for (int n = 1; n <= 5; n++) {
-            
+
         NamedCommands.registerCommand("Intake In" + n, new RunCommand(() -> sIntake.intakeIn()).withTimeout(n));
         NamedCommands.registerCommand("Intake Out" + n, new RunCommand(() -> sIntake.intakeOut()).withTimeout(n));
         NamedCommands.registerCommand("Climb Up" + n, new RunCommand(() -> sClimb.climbUp()).withTimeout(n));
@@ -173,13 +174,17 @@ public class RobotContainer {
 
         //     *****     AUTONOMOUS PATH CHOOSER     *****     //
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+        
+        autoSelect.setDefaultOption("Middle", "M1");
+        autoSelect.addOption("Audience", "A1");
+        autoSelect.addOption("Judge", "J1");
 
         SmartDashboard.putData(autoSelect);
 
     }
 
     public Command getAutonomousCommand() {
-        return Commands.print("No autonomous command configured");
+        return AutoBuilder.buildAuto(autoSelect.getSelected());
     }
     
 }
