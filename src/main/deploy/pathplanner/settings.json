@@ -2,8 +2,16 @@
   "robotWidth": 0.9,
   "robotLength": 0.9,
   "holonomicMode": true,
-  "pathFolders": [],
-  "autoFolders": [],
+  "pathFolders": [
+    "Middle Auto",
+    "Audience Side Auto",
+    "Judge Side Auto"
+  ],
+  "autoFolders": [
+    "Audience Autos",
+    "Middle Autos",
+    "Judge Autos"
+  ],
   "defaultMaxVel": 3.0,
   "defaultMaxAccel": 3.0,
   "defaultMaxAngVel": 540.0,

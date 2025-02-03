@@ -86,7 +86,8 @@ public class RobotContainer {
 
     private void namedCommands() {
 
-        for (int n = 0; n < 5; n++) {
+        for (int n = 1; n <= 5; n++) {
+            
         NamedCommands.registerCommand("Intake In" + n, new RunCommand(() -> sIntake.intakeIn()).withTimeout(n));
         NamedCommands.registerCommand("Intake Out" + n, new RunCommand(() -> sIntake.intakeOut()).withTimeout(n));
         NamedCommands.registerCommand("Climb Up" + n, new RunCommand(() -> sClimb.climbUp()).withTimeout(n));
