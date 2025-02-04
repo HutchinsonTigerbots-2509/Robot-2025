@@ -35,7 +35,7 @@ public class RobotContainer {
 
 
 
-    //     *****     USER INPUTS     *****     //
+    //     *****     BASIC/CONTROLLER INITIALIZATIONS     *****     //
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
     final CommandXboxController jJoystick = new CommandXboxController(IDConstants.kControllerID);
@@ -45,7 +45,7 @@ public class RobotContainer {
     SendableChooser<String> autoSelect = new SendableChooser<>();
     
 
-    //     *****     OBJECTS     *****     //
+    //     *****     DRIVE OBJECTS     *****     //
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
     /* Setting up bindings for necessary control of the swerve drive platform */
@@ -72,7 +72,7 @@ public class RobotContainer {
 
 
 
-    //     *****     DEFAULT COMMANDS     *****     //
+    //     *****     START DEFAULT COMMANDS     *****     //
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
 
@@ -83,13 +83,13 @@ public class RobotContainer {
 
     private void configureBindings() {
 
-        //     *****     DEFAULT COMMANDS     *****     //
+        //     *****     END DEFAULT COMMANDS     *****     //
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
 
 
 
-        //     *****     PREMADE     *****     //
+        //     *****     START CTRE INITIALIZED DRIVETRAIN     *****     //
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
 
@@ -124,7 +124,7 @@ public class RobotContainer {
         //sDrivetrain.registerTelemetry(logger::telemeterize);
 
 
-        //     *****     END PREMADE     *****      //
+        //     *****     END CTRE INITIALIZED DRIVETRAIN     *****      //
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
 
@@ -152,6 +152,6 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return Commands.print("No autonomous command configured");
+        return Commands.print("No autonomous commands initialized");
     }
 }
