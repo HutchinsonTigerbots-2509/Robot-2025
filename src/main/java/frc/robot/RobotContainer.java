@@ -7,6 +7,8 @@ package frc.robot;
 import static edu.wpi.first.units.Units.*;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -15,6 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -79,7 +82,32 @@ public class RobotContainer {
 
     public RobotContainer() {
         configureBindings();
+        namedCommands();
     }
+
+    private void namedCommands() {
+
+        for (int n = 1; n <= 5; n++) {
+
+        NamedCommands.registerCommand("Intake In" + n, new RunCommand(() -> sIntake.intakeIn()).withTimeout(n));
+        NamedCommands.registerCommand("Intake Out" + n, new RunCommand(() -> sIntake.intakeOut()).withTimeout(n));
+        NamedCommands.registerCommand("Climb Up" + n, new RunCommand(() -> sClimb.climbUp()).withTimeout(n));
+        NamedCommands.registerCommand("Climb Down" + n, new RunCommand(() -> sClimb.climbDown()).withTimeout(n));
+        NamedCommands.registerCommand("Lift Up" + n, new RunCommand(() -> sLift.liftUp()).withTimeout(n));
+        NamedCommands.registerCommand("Lift Down" + n, new RunCommand(() -> sLift.liftDown()).withTimeout(n));
+        }
+
+        NamedCommands.registerCommand("Grab", new InstantCommand(() -> sGrabber.close()));
+        NamedCommands.registerCommand("Release", new InstantCommand(() -> sGrabber.open()));
+
+        
+
+
+
+
+
+    }
+
 
     private void configureBindings() {
 
@@ -146,12 +174,17 @@ public class RobotContainer {
 
         //     *****     AUTONOMOUS PATH CHOOSER     *****     //
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+        
+        autoSelect.setDefaultOption("Middle", "M1");
+        autoSelect.addOption("Audience", "A1");
+        autoSelect.addOption("Judge", "J1");
 
         SmartDashboard.putData(autoSelect);
 
     }
 
     public Command getAutonomousCommand() {
-        return Commands.print("No autonomous commands initialized");
+        return AutoBuilder.buildAuto(autoSelect.getSelected());
     }
+    
 }
