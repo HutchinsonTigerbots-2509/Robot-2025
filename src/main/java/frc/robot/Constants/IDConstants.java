@@ -32,6 +32,10 @@ public class IDConstants {
 
     public static final int kClimbID = 30;
 
+    //     *****     VISION      *****     //
+    public static final String kCamera1 = "INSERT CAMERA NAMES EXACTLY AS ENTERED ON PHOTON VISION";
+    public static final String kCamera2 = "";
+
 
 
 }
