@@ -15,6 +15,7 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -26,6 +27,13 @@ public class pathPlannerDrive extends SubsystemBase {
   /** Creates a new pathPlannerDrive. 
    * @throws ParseException 
    * @throws IOException */
+
+   Pose2d fixerPose2d;
+   Rotation2d fixerRotation2d;
+   Translation2d fixeTranslation2d;
+
+   vision sVision;
+
 
 
   
@@ -54,7 +62,7 @@ public class pathPlannerDrive extends SubsystemBase {
             () -> getPose2d(eSwerveEstimator), // Robot pose supplier
             resetPos2d -> resetPos2d(eSwerveEstimator, startPose2d), // Method to reset odometry (will be called if your auto has a starting pose)
             () -> getChassisSpeeds(sDrivetrain), // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-            driveChassis -> driveChassis(sDrivetrain), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
+            driveChassis -> driveChassis(sDrivetrain, driveChassis), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
             new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for holonomic drive trains
                     new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
                     new PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants
@@ -155,7 +163,13 @@ public class pathPlannerDrive extends SubsystemBase {
   }
 
   //** Drives the robot with given speeds */
-  public void driveChassis(drivetrain sDrivetrain) {
-    //TODO
+  public void driveChassis(drivetrain sDrivetrain, ChassisSpeeds speeds) {
+    //TODO drive with chassis
+  }
+
+  public void correctEsti(SwerveDrivePoseEstimator estimator, drivetrain sDrivetrain) {
+    //TODO make this make correct position of from the seen april tag
+    fixerPose2d = new Pose2d(sVision.getX(), sVision.getY(), getRotation2d(sDrivetrain));
+    estimator.resetPose(fixerPose2d);
   }
 }

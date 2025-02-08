@@ -168,8 +168,19 @@ public class RobotContainer {
         // ClimbDownBtn = new JoystickButton(jButtonBoardPrimary, 6);
         // ClimbDownBtn.whileTrue(new RunCommand(() -> sClimb.climbDown()));
 
-        jJoystick.leftBumper().whileTrue(new RunCommand(() -> sClimb.climbUp()));
-        jJoystick.rightBumper().whileTrue(new RunCommand(() -> sClimb.climbDown()));
+        // jJoystick.leftBumper().whileTrue(new RunCommand(() -> sClimb.climbUp()));
+        // jJoystick.rightBumper().whileTrue(new RunCommand(() -> sClimb.climbDown()));
+
+        jJoystick.leftBumper().whileTrue(new RunCommand(() -> sLift.liftUp())).onFalse(new InstantCommand(() -> sLift.liftStop()));
+        jJoystick.rightBumper().whileTrue(new RunCommand(() -> sLift.liftDown())).onFalse(new InstantCommand(() -> sLift.liftStop()));
+
+        // TODO MAKE DROP OF VISION MODE
+        jJoystick.povDown().toggleOnTrue(sDrivetrain.applyRequest(() ->
+                    drive.withVelocityX(-jJoystick.getLeftY() * MaxSpeed)
+                    .withVelocityY(0)
+                    .withRotationalRate(-jJoystick.getRightX() * MaxSpeed)
+            )
+        );
 
 
         //     *****     AUTONOMOUS PATH CHOOSER     *****     //
