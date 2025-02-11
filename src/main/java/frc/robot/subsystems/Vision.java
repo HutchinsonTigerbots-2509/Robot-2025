@@ -15,6 +15,8 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Transform3d;
 
 public class vision extends SubsystemBase {
 
@@ -24,7 +26,12 @@ public class vision extends SubsystemBase {
   public double targetYaw = 0.0;
   public double trueX;
   public double trueY;
+  public double tagAngle;
   public double trueDistance = 0.0;
+
+  HashMap<List, List> targetList = new HashMap<List, List>();
+  ArrayList<List> targetIDList = new ArrayList<List>();
+  ArrayList<List> targetPOSList = new ArrayList<List>();
 
   /** Creates a new vision. */
   public vision() {
@@ -40,9 +47,9 @@ public class vision extends SubsystemBase {
   // @SuppressWarnings({ "unchecked", "rawtypes" })
   public void gainResults() {
     // List<Object> targetList = new ArrayList<Object>();
-    HashMap<List, List> targetList = new HashMap<List, List>();
-    ArrayList<List> targetIDList = new ArrayList<List>();
-    ArrayList<List> targetPOSList = new ArrayList<List>();
+    // HashMap<List, List> targetList = new HashMap<List, List>();
+    // ArrayList<List> targetIDList = new ArrayList<List>();
+    // ArrayList<List> targetPOSList = new ArrayList<List>();
 
     var resultCam1 = camera1.getAllUnreadResults();
     var resultCam2 = camera2.getAllUnreadResults();
@@ -69,7 +76,7 @@ public class vision extends SubsystemBase {
     targetList.put(targetIDList, targetPOSList);
     
 
-    // targetList.put(resultCam2, resultCam2); /* TODO: REFERENCE FOR LATER UPON TESTING TO VERIFY KEY-VALUE INPUT */
+    // targetList.put(resultCam2, resultCam2);
     // targetList.put("POS", targetPOSList);
 
     // targetList.get("ID");
@@ -85,13 +92,59 @@ public class vision extends SubsystemBase {
   }
 
 
-  /** Pulls distance using april tag positions last recorded from the field/initialized positions.
+  /** Pulls distance using april tag positions last recorded from the field/initialized positions. <p>
+   *  Only pulls distance from the first initialized camera. <p>
    * 
-   * @return Distance from all vectors using pos2d, in meters. Specifically getCameraToTarget();
+   * 
+   * references first indexed tag when called.
+   * 
+   * @return Distance from all vectors using a transform3d, in meters. Specifically getBestCameraToTarget();
    */
-  public void fetchTagDistance() {
-    
-    return;
+  public double fetchTagDistance1() {
+    var resultCam1 = camera1.getAllUnreadResults();
+    var result = resultCam1.get(resultCam1.size() - 1);
+    var target = result.getTargets();
+    // if (result.hasTargets()) {
+    //   for (var target : result.getTargets()) {
+        double trueDistance = (target.get(0)).getBestCameraToTarget().getX();
+    //   }
+    // }
+    return trueDistance;
+  }
+
+  /** Pulls distance using april tag positions last recorded from the field/initialized positions. <p>
+   *  Only pulls distance from the first initialized camera. <p>
+   * 
+   * references first indexed tag when called.
+   * 
+   * @return Distance from all vectors using a transform3d, in meters. Specifically getBestCameraToTarget();
+   */
+  public double fetchTagDistance2() {
+    var resultCam2 = camera2.getAllUnreadResults();
+    var result = resultCam2.get(resultCam2.size() - 1);
+    var target = result.getTargets();
+    // if (result.hasTargets()) {
+    //   for (var target : result.getTargets()) {
+        double trueDistance = (target.get(0)).getBestCameraToTarget().getX();
+    //   }
+    // }
+    return trueDistance;
+  }
+
+  public double fetchTagAngle1() {
+    var resultCam1 = camera1.getAllUnreadResults();
+    var result = resultCam1.get(resultCam1.size() - 1);
+    var target = result.getTargets();
+    double tagAngle = (target.get(0)).getBestCameraToTarget().getRotation().getAngle();
+    return tagAngle;
+  }
+
+  public double fetchTagAngle2() {
+    var resultCam2 = camera2.getAllUnreadResults();
+    var result = resultCam2.get(resultCam2.size() - 1);
+    var target = result.getTargets();
+    double tagAngle = (target.get(0)).getBestCameraToTarget().getRotation().getAngle();
+    return tagAngle;
   }
   
   
