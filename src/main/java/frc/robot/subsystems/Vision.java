@@ -106,7 +106,7 @@ public class vision extends SubsystemBase {
     var target = result.getTargets();
     // if (result.hasTargets()) {
     //   for (var target : result.getTargets()) {
-        double trueDistance = (target.get(0)).getBestCameraToTarget().getX();
+        double trueDistance = (target.get(0)).getBestCameraToTarget().getZ();
     //   }
     // }
     return trueDistance;
@@ -125,7 +125,7 @@ public class vision extends SubsystemBase {
     var target = result.getTargets();
     // if (result.hasTargets()) {
     //   for (var target : result.getTargets()) {
-        double trueDistance = (target.get(0)).getBestCameraToTarget().getX();
+        double trueDistance = (target.get(0)).getBestCameraToTarget().getZ();
     //   }
     // }
     return trueDistance;
