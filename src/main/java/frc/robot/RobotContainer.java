@@ -6,6 +6,8 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.*;
 
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -70,6 +72,7 @@ public class RobotContainer {
     public final lift sLift = new lift();
     public final intake sIntake = new intake();
     public final grabber sGrabber = new grabber();
+    public final shooter sShooter = new shooter();
 
     public final Dashboard dashboard = new Dashboard();
 
@@ -173,6 +176,24 @@ public class RobotContainer {
 
         jJoystick.leftBumper().whileTrue(new RunCommand(() -> sLift.liftUp())).onFalse(new InstantCommand(() -> sLift.liftStop()));
         jJoystick.rightBumper().whileTrue(new RunCommand(() -> sLift.liftDown())).onFalse(new InstantCommand(() -> sLift.liftStop()));
+
+        // Trigger ShooterInBtn;
+        // ShooterInBtn = new JoystickButton(jButtonBoardPrimary, 7);
+        // ShooterInBtn.whileTrue(new RunCommand(() -> sShooter.ShooterOut(.5))).onFalse(new InstantCommand(() -> sShooter.ShooterStop()));
+
+        // Trigger ShooterInBtn;
+        // ShooterInBtn = new JoystickButton(jButtonBoardPrimary, 7);
+        // ShooterInBtn.whileTrue(sShooter.ShooterIn(.5)).onFalse(sShooter.ShooterStop());
+        
+
+        Trigger ShooterOutBtn;
+        ShooterOutBtn = new JoystickButton(jButtonBoardPrimary, 6);
+        ShooterOutBtn.whileTrue(sShooter.ShooterOut(-.5)).onFalse(sShooter.ShooterStop());
+
+        Trigger ShootthatThing;
+        ShootthatThing = new JoystickButton(jButtonBoardPrimary, 7);
+        ShootthatThing.whileTrue(sShooter.ShooterIn(.5)).onFalse(sShooter.ShooterStop());
+        
 
         // TODO MAKE DROP OF VISION MODE
         jJoystick.povDown().toggleOnTrue(sDrivetrain.applyRequest(() ->

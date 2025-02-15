@@ -57,8 +57,8 @@ public class vision extends SubsystemBase {
       var result = resultCam1.get(resultCam1.size() - 1);
       if (result.hasTargets()) {
         for (var target : result.getTargets()) {
-          targetIDList.addAll((Collection<? extends List<PhotonTrackedTarget>>) target);
-          targetPOSList.addAll((Collection<? extends List<Integer>>) result.getTargets());          
+          // targetIDList.addAll((Collection<? extends List<PhotonTrackedTarget>>) target); TODO: fix stack errors
+          // targetPOSList.addAll((Collection<? extends List<Integer>>) result.getTargets());          
         }
       }
     }
@@ -67,8 +67,8 @@ public class vision extends SubsystemBase {
       var result = resultCam2.get(resultCam2.size() - 1);
       if (result.hasTargets()) {   
         for (var target : result.getTargets()) { 
-          targetIDList.addAll((Collection<? extends List<PhotonTrackedTarget>>) target);
-          targetPOSList.addAll((Collection<? extends List<Integer>>) result.getTargets());
+          // targetIDList.addAll((Collection<? extends List<PhotonTrackedTarget>>) target);
+          // targetPOSList.addAll((Collection<? extends List<Integer>>) result.getTargets());
         }     
       }
     }

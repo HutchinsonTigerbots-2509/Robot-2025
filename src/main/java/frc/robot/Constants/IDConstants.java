@@ -18,13 +18,17 @@ public class IDConstants {
 
     //     *****     INTAKE/LIFT     *****     //
 
-    public static final int kLiftID = 20;
+    public static final int kLiftID = 50;
+
+
     public static final int kLiftSensorID = 21;
 
     public static final int kCoralIntakeID = 22;
     public static final int kCoralSensorID = 23;
     
     public static final int kAlgaeIntakeID = 24;
+
+    public static final int kCoralShooterID = 51;
 
 
 
