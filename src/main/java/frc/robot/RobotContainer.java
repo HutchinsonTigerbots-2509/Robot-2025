@@ -188,11 +188,11 @@ public class RobotContainer {
 
         Trigger ShooterOutBtn;
         ShooterOutBtn = new JoystickButton(jButtonBoardPrimary, 6);
-        ShooterOutBtn.whileTrue(sShooter.ShooterOut(-.5)).onFalse(sShooter.ShooterStop());
+        ShooterOutBtn.whileTrue(sShooter.ShooterSet(-.5)).onFalse(sShooter.ShooterStop());
 
-        Trigger ShootthatThing;
-        ShootthatThing = new JoystickButton(jButtonBoardPrimary, 7);
-        ShootthatThing.whileTrue(sShooter.ShooterIn(.5)).onFalse(sShooter.ShooterStop());
+        Trigger ShooterInBtn;
+        ShooterInBtn = new JoystickButton(jButtonBoardPrimary, 7);
+        ShooterInBtn.whileTrue(sShooter.ShooterSet(.5)).onFalse(sShooter.ShooterStop());
         
 
         // TODO MAKE DROP OF VISION MODE

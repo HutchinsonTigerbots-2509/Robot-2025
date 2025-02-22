@@ -39,8 +39,14 @@ public class shooter extends SubsystemBase {
    * 
    * insert Output as a number between 1, -1.
    */
-  public Command ShooterIn(double Output) {
-    return run(() -> mCoralShooter.set(Output));
+  
+  public void setSchooter(double speed) {
+    mCoralShooter.set(speed);
+  }
+
+
+  public Command ShooterSet(double Output) {
+    return run(() -> setSchooter(Output));
   }
 
     /** Sets the shooter mode to be true
@@ -50,9 +56,6 @@ public class shooter extends SubsystemBase {
    * insert Output as a number between 1, -1.
      * @return 
    */
-  public Command ShooterOut(double Output) {
-    return run(() -> mCoralShooter.set(Output));
-  }
 
   public Command ShooterStop() {
     return run(() -> mCoralShooter.set(0.0));
