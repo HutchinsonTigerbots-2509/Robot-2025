@@ -176,23 +176,17 @@ public class RobotContainer {
 
         jJoystick.leftBumper().whileTrue(new RunCommand(() -> sLift.liftUp())).onFalse(new InstantCommand(() -> sLift.liftStop()));
         jJoystick.rightBumper().whileTrue(new RunCommand(() -> sLift.liftDown())).onFalse(new InstantCommand(() -> sLift.liftStop()));
-
-        // Trigger ShooterInBtn;
-        // ShooterInBtn = new JoystickButton(jButtonBoardPrimary, 7);
-        // ShooterInBtn.whileTrue(new RunCommand(() -> sShooter.ShooterOut(.5))).onFalse(new InstantCommand(() -> sShooter.ShooterStop()));
-
-        // Trigger ShooterInBtn;
-        // ShooterInBtn = new JoystickButton(jButtonBoardPrimary, 7);
-        // ShooterInBtn.whileTrue(sShooter.ShooterIn(.5)).onFalse(sShooter.ShooterStop());
         
 
-        Trigger ShooterOutBtn;
-        ShooterOutBtn = new JoystickButton(jButtonBoardPrimary, 6);
-        ShooterOutBtn.whileTrue(sShooter.ShooterSet(-.5)).onFalse(sShooter.ShooterStop());
+        // Trigger ShooterOutBtn;
+        // ShooterOutBtn = new JoystickButton(jButtonBoardPrimary, 1);
+        jJoystick.rightBumper().whileTrue(sShooter.ShooterSet(.5)).onFalse(sShooter.ShooterStop());
+        //ShooterOutBtn.whileTrue(sShooter.ShooterSet(-.5)).onFalse(sShooter.ShooterStop());
 
-        Trigger ShooterInBtn;
-        ShooterInBtn = new JoystickButton(jButtonBoardPrimary, 7);
-        ShooterInBtn.whileTrue(sShooter.ShooterSet(.5)).onFalse(sShooter.ShooterStop());
+        // Trigger ShooterInBtn;
+        // ShooterInBtn = new JoystickButton(jButtonBoardPrimary, 2);
+        jJoystick.leftBumper().whileTrue(sShooter.ShooterSet(-.5)).onFalse(sShooter.ShooterStop());
+        //ShooterInBtn.whileTrue(sShooter.ShooterSet(.5)).onFalsse(sShooter.ShooterStop());
         
 
         // TODO MAKE DROP OF VISION MODE
