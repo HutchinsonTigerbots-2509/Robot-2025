@@ -7,7 +7,7 @@ package frc.robot.subsystems;
 import com.ctre.phoenix6.signals.BrushedMotorWiringValue;
 // import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 // import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
-// import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 // import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -20,10 +20,10 @@ import frc.robot.Constants.IDConstants;
 public class shooter extends SubsystemBase {
   /** Creates a new Shooter. */
   //  TalonSRX mCoralShooter = new TalonSRX(IDConstants.kCoralShooterID);
-  // WPI_TalonSRX mCoralShooter = new WPI_TalonSRX(IDConstants.kCoralShooterID);
+  WPI_TalonSRX mCoralShooter = new WPI_TalonSRX(IDConstants.kCoralShooterID);
   // VictorSPX mCoralShooter = new VictorSPX(IDConstants.kCoralShooterID);
-  // WPI_VictorSPX mCoralShooter = new WPI_VictorSPX(IDConstants.kCoralShooterID);
-  SparkMax mCoralShooter = new SparkMax(IDConstants.kCoralShooterID, MotorType.kBrushed);
+  // WPI_VictorSPX mCoralShooter = new WPI_VictorSPX(IDConstants.kCoralShooterID); 
+  // SparkMax mCoralShooter = new SparkMax(IDConstants.kCoralShooterID, MotorType.kBrushed);
 
   public shooter() {
   }
