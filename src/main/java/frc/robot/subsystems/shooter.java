@@ -33,7 +33,8 @@ public class shooter extends SubsystemBase {
     // This method will be called once per scheduler run
   }
 
-    /** Sets the shooter mode to be true
+    /**🤯 <p>
+     *  Sets the shooter mode to be true
    * 
    * @param Output <p>
    * 
@@ -49,7 +50,8 @@ public class shooter extends SubsystemBase {
     return run(() -> setShooter(Output));
   }
 
-    /** Sets the shooter mode to be true
+    /** 🤯 <p>
+     * Sets the shooter mode to be true
    * 
    * @param Output <p>
    * 

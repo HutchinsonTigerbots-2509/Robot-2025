@@ -32,7 +32,7 @@ import frc.robot.Dashboard;
 
 public class RobotContainer {
 
-    //     *****     NUMBERS     *****     //
+    //  🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨   *****     NUMBERS     *****     //🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
     private double MaxSpeed = SwerveConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
@@ -40,7 +40,7 @@ public class RobotContainer {
 
 
 
-    //     *****     BASIC/CONTROLLER INITIALIZATIONS     *****     //
+    // 🚨🚨🚨🚨🚨🚨🚨🚨    *****     BASIC/CONTROLLER INITIALIZATIONS     *****     //🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
     final CommandXboxController jJoystick = new CommandXboxController(IDConstants.kControllerID);
@@ -50,7 +50,7 @@ public class RobotContainer {
     SendableChooser<String> autoSelect = new SendableChooser<>();
     
 
-    //     *****     DRIVE OBJECTS     *****     //
+    // 🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨    *****     DRIVE OBJECTS     *****     //🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
     /* Setting up bindings for necessary control of the swerve drive platform */
@@ -63,7 +63,7 @@ public class RobotContainer {
     //private final Telemetry logger = new Telemetry(MaxSpeed);
 
 
-    //     *****     SUBSYSTEMS     *****     //
+    // 🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨    *****     SUBSYSTEMS     *****     //🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
     public final drivetrain sDrivetrain = SwerveConstants.createDrivetrain();
@@ -78,7 +78,7 @@ public class RobotContainer {
 
 
 
-    //     *****     START DEFAULT COMMANDS     *****     //
+    // 🚨🚨🚨🚨🚨🚨🚨🚨🚨    *****     START DEFAULT COMMANDS     *****     //🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
 
@@ -114,13 +114,13 @@ public class RobotContainer {
 
     private void configureBindings() {
 
-        //     *****     END DEFAULT COMMANDS     *****     //
+        // 🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨    *****     END DEFAULT COMMANDS     *****     //🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
 
 
 
-        //     *****     START CTRE INITIALIZED DRIVETRAIN     *****     //
+        // 🚨🚨🚨🚨🚨🚨🚨🚨    *****     START CTRE INITIALIZED DRIVETRAIN     *****     //🚨🚨🚨🚨🚨🚨🚨🚨🚨
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
 
@@ -155,13 +155,13 @@ public class RobotContainer {
         //sDrivetrain.registerTelemetry(logger::telemeterize);
 
 
-        //     *****     END CTRE INITIALIZED DRIVETRAIN     *****      //
+        // 🚨🚨🚨🚨🚨🚨🚨    *****     END CTRE INITIALIZED DRIVETRAIN     *****      //🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
 
 
 
-        //     *****     BUTTON BIND/MAPPING     *****     //
+        // 🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨    *****     BUTTON BIND/MAPPING     *****     //🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
         // Trigger ClimbUpBtn;
         // ClimbUpBtn = new JoystickButton(jButtonBoardPrimary, 5);
@@ -194,11 +194,11 @@ public class RobotContainer {
                     drive.withVelocityX(-jJoystick.getLeftY() * MaxSpeed)
                     .withVelocityY(0)
                     .withRotationalRate(-jJoystick.getRightX() * MaxSpeed)
-            )
+            ) 
         );
 
 
-        //     *****     AUTONOMOUS PATH CHOOSER     *****     //
+        // 🚨🚨🚨🚨🚨🚨🚨🚨🚨    *****     AUTONOMOUS PATH CHOOSER     *****     //🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
         
         autoSelect.setDefaultOption("Middle", "M1");
