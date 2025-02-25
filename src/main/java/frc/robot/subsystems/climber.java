@@ -24,12 +24,12 @@ public class climber extends SubsystemBase {
 
 
   public void climbUp() {
-    mClimber.set(1);
+    mClimber.set(.5);
   }
 
 
   public void climbDown() {
-    mClimber.set(-1);
+    mClimber.set(-.5);
   }
 
 
