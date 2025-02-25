@@ -4,17 +4,18 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.IDConstants;
 
-public class climb extends SubsystemBase {
+public class climber extends SubsystemBase {
   /** Creates a new climb. */
 
-  public TalonFX mClimber = new TalonFX(IDConstants.kClimbID);
+  public WPI_TalonSRX mClimber = new WPI_TalonSRX(IDConstants.kClimbID);
 
-  public climb() {}
+  public climber() {}
 
   @Override
   public void periodic() {

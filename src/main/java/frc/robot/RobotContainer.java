@@ -67,9 +67,9 @@ public class RobotContainer {
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
     public final drivetrain sDrivetrain = SwerveConstants.createDrivetrain();
-    public final climb sClimb = new climb();
+    public final climber sClimb = new climber();
     public final vision sVision = new vision();
-    public final lift sLift = new lift();
+    public final elevator sLift = new elevator();
     public final intake sIntake = new intake();
     public final grabber sGrabber = new grabber();
     public final shooter sShooter = new shooter();
@@ -96,8 +96,8 @@ public class RobotContainer {
         NamedCommands.registerCommand("Intake Out" + n, new RunCommand(() -> sIntake.intakeOut()).withTimeout(n));
         NamedCommands.registerCommand("Climb Up" + n, new RunCommand(() -> sClimb.climbUp()).withTimeout(n));
         NamedCommands.registerCommand("Climb Down" + n, new RunCommand(() -> sClimb.climbDown()).withTimeout(n));
-        NamedCommands.registerCommand("Lift Up" + n, new RunCommand(() -> sLift.liftUp()).withTimeout(n));
-        NamedCommands.registerCommand("Lift Down" + n, new RunCommand(() -> sLift.liftDown()).withTimeout(n));
+        NamedCommands.registerCommand("Lift Up" + n, new RunCommand(() -> sLift.elevatorUp()).withTimeout(n));
+        NamedCommands.registerCommand("Lift Down" + n, new RunCommand(() -> sLift.elevatorDown()).withTimeout(n));
         }
 
         NamedCommands.registerCommand("Grab", new InstantCommand(() -> sGrabber.close()));
@@ -174,8 +174,8 @@ public class RobotContainer {
         // jJoystick.leftBumper().whileTrue(new RunCommand(() -> sClimb.climbUp()));
         // jJoystick.rightBumper().whileTrue(new RunCommand(() -> sClimb.climbDown()));
 
-        jJoystick.leftBumper().whileTrue(new RunCommand(() -> sLift.liftUp())).onFalse(new InstantCommand(() -> sLift.liftStop()));
-        jJoystick.rightBumper().whileTrue(new RunCommand(() -> sLift.liftDown())).onFalse(new InstantCommand(() -> sLift.liftStop()));
+        jJoystick.leftBumper().whileTrue(new RunCommand(() -> sLift.elevatorUp())).onFalse(new InstantCommand(() -> sLift.elevatorStop()));
+        jJoystick.rightBumper().whileTrue(new RunCommand(() -> sLift.elevatorDown())).onFalse(new InstantCommand(() -> sLift.elevatorStop()));
         
 
         // Trigger ShooterOutBtn;

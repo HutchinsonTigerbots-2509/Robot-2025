@@ -11,9 +11,9 @@ import frc.robot.Constants.*;
 public class Dashboard {
 
     public final drivetrain sDrivetrain = SwerveConstants.createDrivetrain();
-    public final climb sClimb = new climb();
+    public final climber sClimb = new climber();
     public final vision sVision = new vision();
-    public final lift sLift = new lift();
+    public final elevator sLift = new elevator();
     public final intake sIntake = new intake();
     public final grabber sGrabber = new grabber();
 
@@ -25,6 +25,7 @@ public class Dashboard {
     }
 
     public void SendDashboard() {
+        
         
     }
 

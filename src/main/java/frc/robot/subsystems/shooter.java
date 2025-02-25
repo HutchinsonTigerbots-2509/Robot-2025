@@ -19,11 +19,8 @@ import frc.robot.Constants.IDConstants;
 
 public class shooter extends SubsystemBase {
   /** Creates a new Shooter. */
-  //  TalonSRX mCoralShooter = new TalonSRX(IDConstants.kCoralShooterID);
   WPI_TalonSRX mCoralShooter = new WPI_TalonSRX(IDConstants.kCoralShooterID);
-  // VictorSPX mCoralShooter = new VictorSPX(IDConstants.kCoralShooterID);
-  // WPI_VictorSPX mCoralShooter = new WPI_VictorSPX(IDConstants.kCoralShooterID); 
-  // SparkMax mCoralShooter = new SparkMax(IDConstants.kCoralShooterID, MotorType.kBrushed);
+
 
   public shooter() {
   }

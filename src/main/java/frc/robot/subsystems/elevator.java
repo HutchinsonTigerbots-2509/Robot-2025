@@ -9,28 +9,28 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.IDConstants;
 
-public class lift extends SubsystemBase {
+public class elevator extends SubsystemBase {
   /** Creates a new lift. */
 
   TalonFX mLift = new TalonFX(IDConstants.kLiftID);
 
 
-  public lift() {}
+  public elevator() {}
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
   }
 
-  public void liftUp() {
+  public void elevatorUp() {
     mLift.set(1);
   }
 
-  public void liftDown() {
+  public void elevatorDown() {
     mLift.set(-1);
   }
 
-  public void liftStop() {
+  public void elevatorStop() {
     mLift.set(0);
   }
 
