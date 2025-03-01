@@ -40,6 +40,10 @@ public class IDConstants {
     public static final String kCamera1 = "INSERT CAMERA NAMES EXACTLY AS ENTERED ON PHOTON VISION";
     public static final String kCamera2 = "";
 
+    //     *****     LIMIT SWITCHES      *****     //
+    public static final int kElevatorBottomSwitch = 9;
+
+
 
 
 }

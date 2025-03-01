@@ -137,17 +137,25 @@ public class RobotContainer {
         );
         
 
+        /*
         jJoystick.a().whileTrue(sDrivetrain.applyRequest(() -> brake));
         jJoystick.b().whileTrue(sDrivetrain.applyRequest(() ->
             point.withModuleDirection(new Rotation2d(-jJoystick.getLeftY(), -jJoystick.getLeftX()))
         ));
+        */
+        jJoystick.a().whileTrue(sShooter.ShooterSet(.5)).onFalse(sShooter.ShooterStop());
+        jJoystick.b().whileTrue(sShooter.ShooterSet(-.5)).onFalse(sShooter.ShooterStop());
 
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
+        /*
         jJoystick.back().and(jJoystick.y()).whileTrue(sDrivetrain.sysIdDynamic(Direction.kForward));
         jJoystick.back().and(jJoystick.x()).whileTrue(sDrivetrain.sysIdDynamic(Direction.kReverse));
         jJoystick.start().and(jJoystick.y()).whileTrue(sDrivetrain.sysIdQuasistatic(Direction.kForward));
         jJoystick.start().and(jJoystick.x()).whileTrue(sDrivetrain.sysIdQuasistatic(Direction.kReverse));
+        */
+        jJoystick.y().whileTrue(new RunCommand(() -> sClimb.climbUp())).onFalse(new InstantCommand(() -> sClimb.climbStop()));
+        jJoystick.x().whileTrue(new RunCommand(() -> sClimb.climbDown())).onFalse(new InstantCommand(() -> sClimb.climbStop()));
 
         // reset the field-centric heading on left bumper press
                                             //jJoystick.leftBumper().onTrue(sDrivetrain.runOnce(() -> sDrivetrain.seedFieldCentric()));
@@ -171,11 +179,11 @@ public class RobotContainer {
         // ClimbDownBtn = new JoystickButton(jButtonBoardPrimary, 6);
         // ClimbDownBtn.whileTrue(new RunCommand(() -> sClimb.climbDown()));
 
-        jJoystick.leftBumper().whileTrue(new RunCommand(() -> sClimb.climbUp())).onFalse(new InstantCommand(() -> sClimb.climbStop()));
-        jJoystick.rightBumper().whileTrue(new RunCommand(() -> sClimb.climbDown())).onFalse(new InstantCommand(() -> sClimb.climbStop()));
+        // jJoystick.leftBumper().whileTrue(new RunCommand(() -> sClimb.climbUp())).onFalse(new InstantCommand(() -> sClimb.climbStop()));
+        // jJoystick.rightBumper().whileTrue(new RunCommand(() -> sClimb.climbDown())).onFalse(new InstantCommand(() -> sClimb.climbStop()));
 
-        // jJoystick.leftBumper().whileTrue(new RunCommand(() -> sLift.elevatorUp())).onFalse(new InstantCommand(() -> sLift.elevatorStop()));
-        // jJoystick.rightBumper().whileTrue(new RunCommand(() -> sLift.elevatorDown())).onFalse(new InstantCommand(() -> sLift.elevatorStop()));
+        jJoystick.leftBumper().whileTrue(new RunCommand(() -> sLift.elevatorUp())).onFalse(new InstantCommand(() -> sLift.elevatorStop()));
+        jJoystick.rightBumper().whileTrue(new RunCommand(() -> sLift.elevatorDown())).onFalse(new InstantCommand(() -> sLift.elevatorStop()));
 
         // jJoystick.rightBumper().whileTrue(sShooter.ShooterSet(.5)).onFalse(sShooter.ShooterStop());
         // jJoystick.leftBumper().whileTrue(sShooter.ShooterSet(-.5)).onFalse(sShooter.ShooterStop());

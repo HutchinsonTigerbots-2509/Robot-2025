@@ -4,8 +4,11 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.configs.DigitalInputsConfigs;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.IDConstants;
 
@@ -13,9 +16,13 @@ public class elevator extends SubsystemBase {
   /** Creates a new lift. */
 
   TalonFX mLift = new TalonFX(IDConstants.kLiftID);
+  DigitalInput wBottomElevator = new DigitalInput(IDConstants.kElevatorBottomSwitch);
 
 
-  public elevator() {}
+  public elevator() {
+    mLift.setPosition(0);
+    mLift.setNeutralMode(NeutralModeValue.Brake);
+  }
 
   @Override
   public void periodic() {
@@ -27,7 +34,11 @@ public class elevator extends SubsystemBase {
   }
 
   public void elevatorDown() {
+    if (!wBottomElevator.get()) {
+      mLift.set(0);
+    } else {
     mLift.set(-1);
+    }
   }
 
   public void elevatorStop() {
