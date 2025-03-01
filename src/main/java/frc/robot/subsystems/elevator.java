@@ -36,6 +36,7 @@ public class elevator extends SubsystemBase {
   public void elevatorDown() {
     if (!wBottomElevator.get()) {
       mLift.set(0);
+      mLift.setPosition(0);
     } else {
     mLift.set(-1);
     }
