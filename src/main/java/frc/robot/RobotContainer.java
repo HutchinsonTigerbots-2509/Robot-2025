@@ -35,15 +35,15 @@ public class RobotContainer {
     //  🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨   *****     NUMBERS     *****     //🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
-    private double MaxSpeed = SwerveConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
-    private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
+    public static double MaxSpeed = SwerveConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
+    public static double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
 
 
 
     // 🚨🚨🚨🚨🚨🚨🚨🚨    *****     BASIC/CONTROLLER INITIALIZATIONS     *****     //🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
-    final CommandXboxController jJoystick = new CommandXboxController(IDConstants.kControllerID);
+    final static CommandXboxController jJoystick = new CommandXboxController(IDConstants.kControllerID);
     final Joystick jButtonBoardPrimary = new Joystick(IDConstants.kPrimaryID);
     final Joystick jButtonBoardSecondary = new Joystick(IDConstants.kSecondaryID);
 
@@ -54,11 +54,23 @@ public class RobotContainer {
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
     /* Setting up bindings for necessary control of the swerve drive platform */
-    private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
+
+
+
+
+
+    //TODO: change .RobotCentric to .FieldCentric for field oriented.... // <---------- 🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨
+
+
+
+
+    public final static SwerveRequest.RobotCentric drive = new SwerveRequest.RobotCentric()
             .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
-    private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
-    private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+
+
+    public final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
+    public final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
     //private final Telemetry logger = new Telemetry(MaxSpeed);
 
@@ -66,7 +78,7 @@ public class RobotContainer {
     // 🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨    *****     SUBSYSTEMS     *****     //🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
-    public final drivetrain sDrivetrain = SwerveConstants.createDrivetrain();
+    public final DriveSubsystem sDrivetrain = SwerveConstants.createDrivetrain();
     public final climber sClimb = new climber();
     public final vision sVision = new vision();
     public final elevator sLift = new elevator();
@@ -220,6 +232,10 @@ public class RobotContainer {
 
     public Command getAutonomousCommand() {
         return AutoBuilder.buildAuto(autoSelect.getSelected());
+    }
+
+    public DriveSubsystem getDrivetrain() {
+        return sDrivetrain;
     }
     
 }

@@ -37,7 +37,7 @@ public class pathPlannerDrive extends SubsystemBase {
 
 
   
-  public pathPlannerDrive(drivetrain sDrivetrain) throws IOException, ParseException {
+  public pathPlannerDrive(DriveSubsystem sDrivetrain) throws IOException, ParseException {
 
     Pose2d startPose2d = new Pose2d(0, 0, getRotation2d(sDrivetrain));
 
@@ -105,7 +105,7 @@ public class pathPlannerDrive extends SubsystemBase {
   }
 
   //** Returns the List of SwerveModulePositions in ( F:LR  R:LR ) order */
-  public SwerveModulePosition[] getModulePositions(drivetrain sDrivetrain) {
+  public SwerveModulePosition[] getModulePositions(DriveSubsystem sDrivetrain) {
 
     SwerveModulePosition FL = sDrivetrain.getModule(0).getPosition(false);
     SwerveModulePosition FR = sDrivetrain.getModule(1).getPosition(false);
@@ -120,7 +120,7 @@ public class pathPlannerDrive extends SubsystemBase {
   }
 
   //** Returns the list of SwerveModuleStates in ( F:LR  R:LR ) order */
-  public SwerveModuleState[] getModuleStates(drivetrain sDrivetrain) {
+  public SwerveModuleState[] getModuleStates(DriveSubsystem sDrivetrain) {
     SwerveModuleState FL = sDrivetrain.getModule(0).getCurrentState();
     SwerveModuleState FR = sDrivetrain.getModule(1).getCurrentState();
     SwerveModuleState RL = sDrivetrain.getModule(2).getCurrentState();
@@ -134,13 +134,13 @@ public class pathPlannerDrive extends SubsystemBase {
   }
 
   //** Returns the kinematics of the swervedrive from drivetrain */
-  public SwerveDriveKinematics getKinematics(drivetrain sDrivetrain) {
+  public SwerveDriveKinematics getKinematics(DriveSubsystem sDrivetrain) {
     SwerveDriveKinematics kinematics = sDrivetrain.getKinematics();
     return kinematics;
   }
 
   //** Returns the current Rotation2d of the robot from the pigeon2 */
-  public Rotation2d getRotation2d(drivetrain sDrivetrain) {
+  public Rotation2d getRotation2d(DriveSubsystem sDrivetrain) {
     Rotation2d pos = sDrivetrain.getPigeon2().getRotation2d();
     return pos;
   }
@@ -157,17 +157,17 @@ public class pathPlannerDrive extends SubsystemBase {
   }
 
   //** Returns the current ChassisSpeeds of the drivetrain */
-  public ChassisSpeeds getChassisSpeeds(drivetrain sDrivetrain) {
+  public ChassisSpeeds getChassisSpeeds(DriveSubsystem sDrivetrain) {
     ChassisSpeeds chassisSpeeds = sDrivetrain.getKinematics().toChassisSpeeds(getModuleStates(sDrivetrain));
     return chassisSpeeds;
   }
 
   //** Drives the robot with given speeds */
-  public void driveChassis(drivetrain sDrivetrain, ChassisSpeeds speeds) {
+  public void driveChassis(DriveSubsystem sDrivetrain, ChassisSpeeds speeds) {
     //TODO drive with chassis
   }
 
-  public void correctEsti(SwerveDrivePoseEstimator estimator, drivetrain sDrivetrain) {
+  public void correctEsti(SwerveDrivePoseEstimator estimator, DriveSubsystem sDrivetrain) {
     //TODO make this make correct position of from the seen april tag
     fixerPose2d = new Pose2d(sVision.getX(), sVision.getY(), getRotation2d(sDrivetrain));
     estimator.resetPose(fixerPose2d);

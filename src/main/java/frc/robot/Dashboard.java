@@ -10,7 +10,7 @@ import frc.robot.Constants.*;
 /** Add your docs here. */
 public class Dashboard {
 
-    public final drivetrain sDrivetrain = SwerveConstants.createDrivetrain();
+    public final DriveSubsystem sDrivetrain = SwerveConstants.createDrivetrain();
     public final climber sClimb = new climber();
     public final vision sVision = new vision();
     public final elevator sLift = new elevator();

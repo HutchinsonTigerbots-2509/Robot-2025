@@ -16,7 +16,7 @@ public class elevator extends SubsystemBase {
   /** Creates a new lift. */
 
   TalonFX mLift = new TalonFX(IDConstants.kLiftID);
-  DigitalInput wBottomElevator = new DigitalInput(IDConstants.kElevatorBottomSwitch);
+  // DigitalInput wBottomElevator = new DigitalInput(IDConstants.kElevatorBottomSwitch);
 
 
   public elevator() {
@@ -34,13 +34,12 @@ public class elevator extends SubsystemBase {
   }
 
   public void elevatorDown() {
-    if (!wBottomElevator.get()) {
-      mLift.set(0);
-      mLift.setPosition(0);
-    } else {
+    // if (!wBottomElevator.get()) {
+      // mLift.set(0);
+      // mLift.setPosition(0);
+    // } else {
     mLift.set(-1);
     }
-  }
 
   public void elevatorStop() {
     mLift.set(0);
