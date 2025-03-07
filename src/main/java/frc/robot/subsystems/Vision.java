@@ -4,6 +4,9 @@
 
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Inch;
+import static edu.wpi.first.units.Units.Meters;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -17,17 +20,25 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.units.DistanceUnit;
+import edu.wpi.first.units.measure.Distance;
 
 public class vision extends SubsystemBase {
+
+  DriveSubsystem sDrivetrain;
 
   PhotonCamera camera1;
   PhotonCamera camera2;
   boolean targetVisible = false;
+
+  public Pose2d aPose2d;
+
   public double targetYaw = 0.0;
   public double trueX;
   public double trueY;
   public double tagAngle;
   public double trueDistance = 0.0;
+  public double posOnScreen = 0;
 
   HashMap<List, List> targetList = new HashMap<List, List>();
   ArrayList<List> targetIDList = new ArrayList<List>();
@@ -104,8 +115,6 @@ public class vision extends SubsystemBase {
     var resultCam1 = camera1.getAllUnreadResults();
     var result = resultCam1.get(resultCam1.size() - 1);
     var target = result.getTargets();
-    // if (result.hasTargets()) {
-    //   for (var target : result.getTargets()) {
         double trueDistance = (target.get(0)).getBestCameraToTarget().getZ();
     //   }
     // }
@@ -155,12 +164,30 @@ public class vision extends SubsystemBase {
   //**   Dereks booty land */
 
   public Pose2d getAprilPos() {
-    return null;
+
+    var resultCam1 = camera1.getAllUnreadResults();
+    var result = resultCam1.get(resultCam1.size() - 1);
+    var target = result.getBestTarget().getBestCameraToTarget();
+    
+    aPose2d = new Pose2d(target.getX(), target.getY(), target.getRotation().toRotation2d());
+
+    return aPose2d;
   }
-  
+
+
+
   public double getAprilDistance() {
-    return 0;
+    var resultCam1 = camera1.getAllUnreadResults();
+    var result = resultCam1.get(resultCam1.size() - 1);
+    var target = result.getTargets();
+        double trueDistanceX = (target.get(0)).getBestCameraToTarget().getMeasureX().in(Meters);
+        double trueDistanceY = (target.get(0)).getBestCameraToTarget().getMeasureY().in(Meters);
+    double DistanceToTarget =  Math.pow(.5,(trueDistanceX * trueDistanceX) + (trueDistanceY * trueDistanceY));
+    return DistanceToTarget;
   }
+
+
+
 
   public double getX() {
     trueX = (getAprilPos().getX() - (getAprilPos().getRotation().getSin() * getAprilDistance()));
@@ -170,6 +197,39 @@ public class vision extends SubsystemBase {
   public double getY() {
     trueY = (getAprilPos().getY() - (getAprilPos().getRotation().getCos() * getAprilDistance()));
     return trueY;
+  }
+
+  /**
+   * Calculates the pos of the tag on screen with a middle of 0 <p>
+   *
+   * @return double from -1 to 1
+   */
+  public double getTagPosOnScreen() {
+
+    var resultCam1 = camera1.getAllUnreadResults();
+    var result = resultCam1.get(resultCam1.size() -1);
+    var target = result.getBestTarget();
+
+
+    var targetCorners = target.getDetectedCorners();
+
+    var targetXLeft = Double.valueOf((targetCorners.get(3)).toString());
+    var targetXRight = Double.valueOf((targetCorners.get(2)).toString());
+
+    var medianTarget =  (targetXLeft + targetXRight) * .5;
+
+    
+
+    //TODO Calculate posOnScreen
+    return medianTarget;
+  }
+
+  public double getVisionDrive() {
+    double vSpeed = getTagPosOnScreen() * 100;
+    if(Math.abs(vSpeed) < 5) {
+      vSpeed = 0;
+    }
+    return vSpeed;
   }
 
 }

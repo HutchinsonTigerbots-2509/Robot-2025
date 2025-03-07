@@ -14,6 +14,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -37,6 +38,7 @@ public class RobotContainer {
 
     public static double MaxSpeed = SwerveConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     public static double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
+    public static double liftPos = 0;
 
 
 
@@ -83,8 +85,8 @@ public class RobotContainer {
     public final vision sVision = new vision();
     public final elevator sLift = new elevator();
     public final intake sIntake = new intake();
-    public final grabber sGrabber = new grabber();
     public final shooter sShooter = new shooter();
+    public final kicker sKicker = new kicker();
 
     public final Dashboard dashboard = new Dashboard();
 
@@ -110,17 +112,15 @@ public class RobotContainer {
         NamedCommands.registerCommand("Climb Down" + n, new RunCommand(() -> sClimb.climbDown()).withTimeout(n));
         NamedCommands.registerCommand("Lift Up" + n, new RunCommand(() -> sLift.elevatorUp()).withTimeout(n));
         NamedCommands.registerCommand("Lift Down" + n, new RunCommand(() -> sLift.elevatorDown()).withTimeout(n));
+
+        NamedCommands.registerCommand("Floor" + n, new elevatorController(IDConstants.kFloorPos, sLift).withTimeout(n));
+        NamedCommands.registerCommand("Bottom" + n, new elevatorController(IDConstants.kBottomPos, sLift).withTimeout(n));
+        NamedCommands.registerCommand("Low" + n, new elevatorController(IDConstants.kLowPos, sLift).withTimeout(n));
+        NamedCommands.registerCommand("Middle" + n, new elevatorController(IDConstants.kMiddlePos, sLift).withTimeout(n));
+        NamedCommands.registerCommand("High" + n, new elevatorController(IDConstants.kHighPos, sLift).withTimeout(n));
         }
 
-        NamedCommands.registerCommand("Grab", new InstantCommand(() -> sGrabber.close()));
-        NamedCommands.registerCommand("Release", new InstantCommand(() -> sGrabber.open()));
-
         
-
-
-
-
-
     }
 
 
@@ -147,7 +147,7 @@ public class RobotContainer {
                     .withRotationalRate(-jJoystick.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
             )
         );
-        
+
 
         /*
         jJoystick.a().whileTrue(sDrivetrain.applyRequest(() -> brake));
@@ -166,8 +166,6 @@ public class RobotContainer {
         jJoystick.start().and(jJoystick.y()).whileTrue(sDrivetrain.sysIdQuasistatic(Direction.kForward));
         jJoystick.start().and(jJoystick.x()).whileTrue(sDrivetrain.sysIdQuasistatic(Direction.kReverse));
         */
-        jJoystick.y().whileTrue(new RunCommand(() -> sClimb.climbUp())).onFalse(new InstantCommand(() -> sClimb.climbStop()));
-        jJoystick.x().whileTrue(new RunCommand(() -> sClimb.climbDown())).onFalse(new InstantCommand(() -> sClimb.climbStop()));
 
         // reset the field-centric heading on left bumper press
                                             //jJoystick.leftBumper().onTrue(sDrivetrain.runOnce(() -> sDrivetrain.seedFieldCentric()));
@@ -183,37 +181,62 @@ public class RobotContainer {
 
         // 🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨    *****     BUTTON BIND/MAPPING     *****     //🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
-        // Trigger ClimbUpBtn;
-        // ClimbUpBtn = new JoystickButton(jButtonBoardPrimary, 5);
-        // ClimbUpBtn.whileTrue(new RunCommand(() -> sClimb.climbUp()));
+        JoystickButton ClimbUpBtn;
+        ClimbUpBtn = new JoystickButton(jButtonBoardPrimary, 3);
+        ClimbUpBtn.whileTrue(new RunCommand(() -> sClimb.climbUp())).onFalse(new InstantCommand(() -> sClimb.climbStop()));
 
-        // Trigger ClimbDownBtn;
-        // ClimbDownBtn = new JoystickButton(jButtonBoardPrimary, 6);
-        // ClimbDownBtn.whileTrue(new RunCommand(() -> sClimb.climbDown()));
-
-        // jJoystick.leftBumper().whileTrue(new RunCommand(() -> sClimb.climbUp())).onFalse(new InstantCommand(() -> sClimb.climbStop()));
-        // jJoystick.rightBumper().whileTrue(new RunCommand(() -> sClimb.climbDown())).onFalse(new InstantCommand(() -> sClimb.climbStop()));
+        JoystickButton ClimbDownBtn;
+        ClimbDownBtn = new JoystickButton(jButtonBoardPrimary, 4);
+        ClimbDownBtn.whileTrue(new RunCommand(() -> sClimb.climbDown())).onFalse(new InstantCommand(() -> sClimb.climbStop()));
 
         jJoystick.leftBumper().whileTrue(new RunCommand(() -> sLift.elevatorUp())).onFalse(new InstantCommand(() -> sLift.elevatorStop()));
         jJoystick.rightBumper().whileTrue(new RunCommand(() -> sLift.elevatorDown())).onFalse(new InstantCommand(() -> sLift.elevatorStop()));
 
-        // jJoystick.rightBumper().whileTrue(sShooter.ShooterSet(.5)).onFalse(sShooter.ShooterStop());
-        // jJoystick.leftBumper().whileTrue(sShooter.ShooterSet(-.5)).onFalse(sShooter.ShooterStop());
-
-
         JoystickButton ShooterOutBtn;
-        // ShooterOutBtn = new JoystickButton(jButtonBoardPrimary, 1);
-        // ShooterOutBtn.whileTrue(sShooter.ShooterSet(.5)).onFalse(sShooter.ShooterStop());
+        ShooterOutBtn = new JoystickButton(jButtonBoardPrimary, 6);
+        ShooterOutBtn.whileTrue(sShooter.ShooterSet(.5)).onFalse(sShooter.ShooterStop());
 
         JoystickButton ShooterInBtn;
-        // ShooterInBtn = new JoystickButton(jButtonBoardPrimary, 2);
-        // ShooterInBtn.whileTrue(sShooter.ShooterSet(-.5)).onFalse(sShooter.ShooterStop());
+        ShooterInBtn = new JoystickButton(jButtonBoardPrimary, 7);
+        ShooterInBtn.whileTrue(sShooter.ShooterSet(-.5)).onFalse(sShooter.ShooterStop());
+
+        JoystickButton LiftUpBtn;
+        LiftUpBtn = new JoystickButton(jButtonBoardPrimary, 1);
+        LiftUpBtn.whileTrue(new RunCommand(() -> sLift.elevatorUp())).onFalse(new InstantCommand(() -> sLift.elevatorStop()));
+
+        JoystickButton LiftDownBtn;
+        LiftDownBtn = new JoystickButton(jButtonBoardPrimary, 2);
+        LiftDownBtn.whileTrue(new RunCommand(() -> sLift.elevatorDown())).onFalse(new InstantCommand(() -> sLift.elevatorStop()));
+
+        JoystickButton LiftFloorBtn;
+        LiftFloorBtn = new JoystickButton(jButtonBoardPrimary, 8);
+        LiftFloorBtn.onTrue(new elevatorController(IDConstants.kFloorPos, sLift));
+
+        JoystickButton LiftBottomBtn;
+        LiftBottomBtn = new JoystickButton(jButtonBoardPrimary, 9);
+        LiftBottomBtn.onTrue(new elevatorController(IDConstants.kBottomPos, sLift));
+
+        JoystickButton LiftLowBtn;
+        LiftLowBtn = new JoystickButton(jButtonBoardPrimary, 10);
+        LiftLowBtn.onTrue(new elevatorController(IDConstants.kLowPos, sLift));
+
+        JoystickButton LiftMiddleBtn;
+        LiftMiddleBtn = new JoystickButton(jButtonBoardPrimary, 11);
+        LiftMiddleBtn.onTrue(new elevatorController(IDConstants.kMiddlePos, sLift));
+
+        JoystickButton LiftHighBtn;
+        LiftHighBtn = new JoystickButton(jButtonBoardPrimary, 12);
+        LiftHighBtn.onTrue(new elevatorController(IDConstants.kHighPos, sLift));
+
+        JoystickButton KickerBtn;
+        KickerBtn = new JoystickButton(jButtonBoardPrimary, 5);
+        KickerBtn.whileTrue(new RunCommand(() -> sKicker.kickerStart())).onFalse(new InstantCommand(() -> sKicker.kickerStop()));
+        //jJoystick.x().whileTrue(new RunCommand(() -> sKicker.kickerStart())).onFalse(new InstantCommand(() -> sKicker.kickerStop()));
         
 
-        // TODO MAKE DROP OF VISION MODE
         jJoystick.povDown().toggleOnTrue(sDrivetrain.applyRequest(() ->
                     drive.withVelocityX(-jJoystick.getLeftY() * MaxSpeed)
-                    .withVelocityY(0)
+                    .withVelocityY(sVision.getVisionDrive())
                     .withRotationalRate(-jJoystick.getRightX() * MaxSpeed)
             ) 
         );
@@ -227,7 +250,12 @@ public class RobotContainer {
         autoSelect.addOption("Judge", "J1");
 
         SmartDashboard.putData(autoSelect);
+    }
 
+    public void driveSwerveVision(ChassisSpeeds speeds) {
+        sDrivetrain.applyRequest(() -> drive.withVelocityX(speeds.vxMetersPerSecond)
+        .withVelocityY(speeds.vyMetersPerSecond)
+        .withRotationalRate(speeds.omegaRadiansPerSecond));
     }
 
     public Command getAutonomousCommand() {

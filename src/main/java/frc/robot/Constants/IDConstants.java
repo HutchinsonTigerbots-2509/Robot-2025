@@ -16,9 +16,15 @@ public class IDConstants {
     public static final int kSecondaryID = 2;
 
 
-    //     *****     INTAKE/LIFT     *****     //
+    //     *****     INTAKE/LIFT/KICKER     *****     //
 
     public static final int kLiftID = 50;
+
+    public static final double kFloorPos = 0;
+    public static final double kBottomPos = 6500;
+    public static final double kLowPos = 10700;
+    public static final double kMiddlePos = 16600;
+    public static final double kHighPos = 25500;
 
 
     public static final int kLiftSensorID = 21;
@@ -30,6 +36,7 @@ public class IDConstants {
 
     public static final int kCoralShooterID = 51;
 
+    public static final int kKickerID = 54;
 
 
     //     *****     CLIMB     *****     //
@@ -37,8 +44,8 @@ public class IDConstants {
     public static final int kClimbID = 55;
 
     //     *****     VISION      *****     //
-    public static final String kCamera1 = "INSERT CAMERA NAMES EXACTLY AS ENTERED ON PHOTON VISION";
-    public static final String kCamera2 = "";
+    public static final String kCamera1 = "Camera1";
+    public static final String kCamera2 = "Camera2";
 
     //     *****     LIMIT SWITCHES      *****     //
     public static final int kElevatorBottomSwitch = 9;

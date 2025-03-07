@@ -21,7 +21,9 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotContainer;
 
 public class pathPlannerDrive extends SubsystemBase {
   /** Creates a new pathPlannerDrive. 
@@ -33,6 +35,7 @@ public class pathPlannerDrive extends SubsystemBase {
    Translation2d fixeTranslation2d;
 
    vision sVision;
+   RobotContainer rContainer;
 
 
 
@@ -102,6 +105,7 @@ public class pathPlannerDrive extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    // SmartDashboard.putData(getPose2d(eSwerveEstimator));
   }
 
   //** Returns the List of SwerveModulePositions in ( F:LR  R:LR ) order */
@@ -151,6 +155,7 @@ public class pathPlannerDrive extends SubsystemBase {
     return pos2d;
   }
   
+  
   //** Resets the Position2d of the swerve estimator */
   public void resetPos2d(SwerveDrivePoseEstimator estimator, Pose2d pos) {
     estimator.resetPose(pos);
@@ -164,7 +169,7 @@ public class pathPlannerDrive extends SubsystemBase {
 
   //** Drives the robot with given speeds */
   public void driveChassis(DriveSubsystem sDrivetrain, ChassisSpeeds speeds) {
-    //TODO drive with chassis
+    rContainer.driveSwerveVision(speeds);
   }
 
   public void correctEsti(SwerveDrivePoseEstimator estimator, DriveSubsystem sDrivetrain) {
