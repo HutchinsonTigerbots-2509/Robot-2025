@@ -20,7 +20,7 @@ public class kicker extends SubsystemBase {
   }
 
   public void kickerStart() {
-    mKicker.set(ControlMode.PercentOutput, 1);
+    mKicker.set(ControlMode.PercentOutput, -1);
   }
 
   public void kickerStop() {

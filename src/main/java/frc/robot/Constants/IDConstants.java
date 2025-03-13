@@ -15,6 +15,8 @@ public class IDConstants {
     public static final int kPrimaryID = 1;
     public static final int kSecondaryID = 2;
 
+    public static final double kSlewFilter = .5;
+
 
     //     *****     INTAKE/LIFT/KICKER     *****     //
 
@@ -24,8 +26,7 @@ public class IDConstants {
     public static final double kBottomPos = 6500;
     public static final double kLowPos = 10700;
     public static final double kMiddlePos = 16600;
-    public static final double kHighPos = 25500;
-
+    public static final double kHighPos = 25000;
 
     public static final int kLiftSensorID = 21;
 

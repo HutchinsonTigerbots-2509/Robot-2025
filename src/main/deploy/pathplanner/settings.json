@@ -3,9 +3,11 @@
   "robotLength": 0.9,
   "holonomicMode": true,
   "pathFolders": [
-    "Audience Side Auto",
-    "Judge Side Auto",
-    "Middle Auto"
+    "Audience1",
+    "Audience1 Close",
+    "Judge1",
+    "Judge1 Close",
+    "Middle1"
   ],
   "autoFolders": [
     "Audience Autos",

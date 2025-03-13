@@ -9,6 +9,18 @@
           "data": {
             "pathName": "MM1"
           }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "High 3.0"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Intake Out 1.0"
+          }
         }
       ]
     }

@@ -13,6 +13,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.Joystick;
@@ -39,6 +40,7 @@ public class RobotContainer {
     public static double MaxSpeed = SwerveConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     public static double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
     public static double liftPos = 0;
+    public static SlewRateLimiter Slewer = new SlewRateLimiter(IDConstants.kSlewFilter);  // Creates our Slew Limiter which makes our drivetrain slowly accelorate, Please Ignore spelling <3
 
 
 
@@ -85,7 +87,6 @@ public class RobotContainer {
     public final vision sVision = new vision();
     public final elevator sLift = new elevator();
     public final intake sIntake = new intake();
-    public final shooter sShooter = new shooter();
     public final kicker sKicker = new kicker();
 
     public final Dashboard dashboard = new Dashboard();
@@ -104,20 +105,24 @@ public class RobotContainer {
 
     private void namedCommands() {
 
-        for (int n = 1; n <= 5; n++) {
+        for (double n = .5; n <= 3; n = n + .5) {
 
-        NamedCommands.registerCommand("Intake In" + n, new RunCommand(() -> sIntake.intakeIn()).withTimeout(n));
-        NamedCommands.registerCommand("Intake Out" + n, new RunCommand(() -> sIntake.intakeOut()).withTimeout(n));
-        NamedCommands.registerCommand("Climb Up" + n, new RunCommand(() -> sClimb.climbUp()).withTimeout(n));
-        NamedCommands.registerCommand("Climb Down" + n, new RunCommand(() -> sClimb.climbDown()).withTimeout(n));
-        NamedCommands.registerCommand("Lift Up" + n, new RunCommand(() -> sLift.elevatorUp()).withTimeout(n));
-        NamedCommands.registerCommand("Lift Down" + n, new RunCommand(() -> sLift.elevatorDown()).withTimeout(n));
+        // Actions
 
-        NamedCommands.registerCommand("Floor" + n, new elevatorController(IDConstants.kFloorPos, sLift).withTimeout(n));
-        NamedCommands.registerCommand("Bottom" + n, new elevatorController(IDConstants.kBottomPos, sLift).withTimeout(n));
-        NamedCommands.registerCommand("Low" + n, new elevatorController(IDConstants.kLowPos, sLift).withTimeout(n));
-        NamedCommands.registerCommand("Middle" + n, new elevatorController(IDConstants.kMiddlePos, sLift).withTimeout(n));
-        NamedCommands.registerCommand("High" + n, new elevatorController(IDConstants.kHighPos, sLift).withTimeout(n));
+            NamedCommands.registerCommand("Intake In " + n, new RunCommand(() -> sIntake.intakeIn()).withTimeout(n));
+            NamedCommands.registerCommand("Intake Out " + n, new RunCommand(() -> sIntake.intakeOut()).withTimeout(n));
+            NamedCommands.registerCommand("Climb Up " + n, new RunCommand(() -> sClimb.climbUp()).withTimeout(n));
+            NamedCommands.registerCommand("Climb Down " + n, new RunCommand(() -> sClimb.climbDown()).withTimeout(n));
+            NamedCommands.registerCommand("Lift Up " + n, new RunCommand(() -> sLift.elevatorUp()).withTimeout(n));
+            NamedCommands.registerCommand("Lift Down " + n, new RunCommand(() -> sLift.elevatorDown()).withTimeout(n));
+
+        // Preset Poses
+
+            NamedCommands.registerCommand("Floor " + n, new elevatorController(IDConstants.kFloorPos, sLift).withTimeout(n));
+            NamedCommands.registerCommand("Bottom " + n, new elevatorController(IDConstants.kBottomPos, sLift).withTimeout(n));
+            NamedCommands.registerCommand("Low " + n, new elevatorController(IDConstants.kLowPos, sLift).withTimeout(n));
+            NamedCommands.registerCommand("Middle " + n, new elevatorController(IDConstants.kMiddlePos, sLift).withTimeout(n));
+            NamedCommands.registerCommand("High " + n, new elevatorController(IDConstants.kHighPos, sLift).withTimeout(n));
         }
 
         
@@ -142,9 +147,9 @@ public class RobotContainer {
         sDrivetrain.setDefaultCommand(
             // Drivetrain will execute this command periodically
             sDrivetrain.applyRequest(() ->
-                drive.withVelocityX(-jJoystick.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
-                    .withVelocityY(-jJoystick.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-                    .withRotationalRate(-jJoystick.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
+                drive.withVelocityX(Slewer.calculate(-jJoystick.getLeftY() * MaxSpeed)) // Drive forward with negative Y (forward)
+                    .withVelocityY(Slewer.calculate(-jJoystick.getLeftX() * MaxSpeed)) // Drive left with negative X (left)
+                    .withRotationalRate(Slewer.calculate(-jJoystick.getRightX() * MaxAngularRate)) // Drive counterclockwise with negative X (left)
             )
         );
 
@@ -155,8 +160,7 @@ public class RobotContainer {
             point.withModuleDirection(new Rotation2d(-jJoystick.getLeftY(), -jJoystick.getLeftX()))
         ));
         */
-        jJoystick.a().whileTrue(sShooter.ShooterSet(.5)).onFalse(sShooter.ShooterStop());
-        jJoystick.b().whileTrue(sShooter.ShooterSet(-.5)).onFalse(sShooter.ShooterStop());
+        
 
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
@@ -181,6 +185,7 @@ public class RobotContainer {
 
         // 🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨    *****     BUTTON BIND/MAPPING     *****     //🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+        
         JoystickButton ClimbUpBtn;
         ClimbUpBtn = new JoystickButton(jButtonBoardPrimary, 3);
         ClimbUpBtn.whileTrue(new RunCommand(() -> sClimb.climbUp())).onFalse(new InstantCommand(() -> sClimb.climbStop()));
@@ -189,16 +194,13 @@ public class RobotContainer {
         ClimbDownBtn = new JoystickButton(jButtonBoardPrimary, 4);
         ClimbDownBtn.whileTrue(new RunCommand(() -> sClimb.climbDown())).onFalse(new InstantCommand(() -> sClimb.climbStop()));
 
-        jJoystick.leftBumper().whileTrue(new RunCommand(() -> sLift.elevatorUp())).onFalse(new InstantCommand(() -> sLift.elevatorStop()));
-        jJoystick.rightBumper().whileTrue(new RunCommand(() -> sLift.elevatorDown())).onFalse(new InstantCommand(() -> sLift.elevatorStop()));
+        JoystickButton IntakeInBtn;
+        IntakeInBtn = new JoystickButton(jButtonBoardPrimary, 7);
+        IntakeInBtn.whileTrue(new RunCommand(() -> sIntake.intakeIn())).onFalse(new InstantCommand(() -> sIntake.intakeStop()));
 
-        JoystickButton ShooterOutBtn;
-        ShooterOutBtn = new JoystickButton(jButtonBoardPrimary, 6);
-        ShooterOutBtn.whileTrue(sShooter.ShooterSet(.5)).onFalse(sShooter.ShooterStop());
-
-        JoystickButton ShooterInBtn;
-        ShooterInBtn = new JoystickButton(jButtonBoardPrimary, 7);
-        ShooterInBtn.whileTrue(sShooter.ShooterSet(-.5)).onFalse(sShooter.ShooterStop());
+        JoystickButton IntakeOutBtn;
+        IntakeOutBtn = new JoystickButton(jButtonBoardPrimary, 6);
+        IntakeOutBtn.whileTrue(new RunCommand(() -> sIntake.intakeOut())).onFalse(new InstantCommand(() -> sIntake.intakeStop()));
 
         JoystickButton LiftUpBtn;
         LiftUpBtn = new JoystickButton(jButtonBoardPrimary, 1);
@@ -207,6 +209,11 @@ public class RobotContainer {
         JoystickButton LiftDownBtn;
         LiftDownBtn = new JoystickButton(jButtonBoardPrimary, 2);
         LiftDownBtn.whileTrue(new RunCommand(() -> sLift.elevatorDown())).onFalse(new InstantCommand(() -> sLift.elevatorStop()));
+
+
+
+
+
 
         JoystickButton LiftFloorBtn;
         LiftFloorBtn = new JoystickButton(jButtonBoardPrimary, 8);
@@ -231,23 +238,37 @@ public class RobotContainer {
         JoystickButton KickerBtn;
         KickerBtn = new JoystickButton(jButtonBoardPrimary, 5);
         KickerBtn.whileTrue(new RunCommand(() -> sKicker.kickerStart())).onFalse(new InstantCommand(() -> sKicker.kickerStop()));
-        //jJoystick.x().whileTrue(new RunCommand(() -> sKicker.kickerStart())).onFalse(new InstantCommand(() -> sKicker.kickerStop()));
+
+
+
+
         
 
-        jJoystick.povDown().toggleOnTrue(sDrivetrain.applyRequest(() ->
-                    drive.withVelocityX(-jJoystick.getLeftY() * MaxSpeed)
-                    .withVelocityY(sVision.getVisionDrive())
-                    .withRotationalRate(-jJoystick.getRightX() * MaxSpeed)
-            ) 
-        );
+        // jJoystick.povDown().toggleOnTrue(sDrivetrain.applyRequest(() ->
+        //             drive.withVelocityX(Slewer.calculate(-jJoystick.getLeftY() * MaxSpeed))
+        //             .withVelocityY(sVision.getVisionDrive())
+        //             .withRotationalRate(Slewer.calculate(-jJoystick.getRightX() * MaxSpeed))
+        //     ) 
+        // );
 
 
         // 🚨🚨🚨🚨🚨🚨🚨🚨🚨    *****     AUTONOMOUS PATH CHOOSER     *****     //🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
         
-        autoSelect.setDefaultOption("Middle", "M1");
-        autoSelect.addOption("Audience", "A1");
-        autoSelect.addOption("Judge", "J1");
+        //  Middle Autos
+
+            autoSelect.setDefaultOption("M1", "M1");
+
+        //  Audience Autos
+
+            autoSelect.addOption("A1", "A1");
+            autoSelect.addOption("A1 Close", "A1C");
+
+        //  Judge Autos
+
+            autoSelect.addOption("J1", "J1");
+            autoSelect.addOption("J1 Close", "J1C");
+
 
         SmartDashboard.putData(autoSelect);
     }

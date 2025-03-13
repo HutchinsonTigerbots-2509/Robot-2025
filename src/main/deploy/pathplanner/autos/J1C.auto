@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "AM1"
+            "pathName": "JM2"
           }
         },
         {
@@ -26,6 +26,6 @@
     }
   },
   "resetOdom": true,
-  "folder": "Audience Autos",
+  "folder": "Judge Autos",
   "choreoAuto": false
 }
