@@ -5,6 +5,7 @@
 package frc.robot;
 
 import frc.robot.subsystems.*;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.*;
 
 /** Add your docs here. */
@@ -26,7 +27,9 @@ public class Dashboard {
 
     public void SendDashboard() {
         
-        
+        //SmartDashboard.putData(pathPlannerDrive.getField2d());
+        //SmartDashboard.putNumber("Screen", sVision.getTagPosOnScreen());
+
     }
 
 }

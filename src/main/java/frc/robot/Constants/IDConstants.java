@@ -8,6 +8,10 @@ package frc.robot.Constants;
 public class IDConstants {
 
 
+    //     *****     MISC NUM     *****     //
+
+    public static final double kDriveTrainMultiplier = .50;
+    public static final double kDriveTrainCreep = .15;
 
     //     *****     JOYSTICKS     *****     //
 
@@ -15,7 +19,8 @@ public class IDConstants {
     public static final int kPrimaryID = 1;
     public static final int kSecondaryID = 2;
 
-    public static final double kSlewFilter = .5;
+    public static final double kSlewFilter1 = 2.0;
+    public static final double kSlewFilter2 = 2.5;
 
 
     //     *****     INTAKE/LIFT/KICKER     *****     //
@@ -29,8 +34,9 @@ public class IDConstants {
     public static final double kHighPos = 25000;
 
     public static final int kLiftSensorID = 21;
+    public static final int kDistanceSensorID = 6;
 
-    public static final int kCoralIntakeID = 22;
+    public static final int kCoralIntakeID = 51;
     public static final int kCoralSensorID = 23;
     
     public static final int kAlgaeIntakeID = 24;

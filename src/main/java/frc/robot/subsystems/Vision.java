@@ -17,18 +17,20 @@ import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.IDConstants;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.units.DistanceUnit;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class vision extends SubsystemBase {
 
   DriveSubsystem sDrivetrain;
 
-  PhotonCamera camera1;
-  PhotonCamera camera2;
+  PhotonCamera camera1 = new PhotonCamera(IDConstants.kCamera1);
+  PhotonCamera camera2 = new PhotonCamera(IDConstants.kCamera2);
   boolean targetVisible = false;
 
   public Pose2d aPose2d;
@@ -51,7 +53,7 @@ public class vision extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-
+    //SmartDashboard.putNumber("Screen", getTagPosOnScreen());
 
   }
   /** Fetch results given from the 2 functional PhotonVision based cameras */
@@ -230,6 +232,12 @@ public class vision extends SubsystemBase {
       vSpeed = 0;
     }
     return vSpeed;
+  }
+
+  public Pose2d getPose2d() {
+    Pose2d pos;
+    pos = new Pose2d(0, 0, null);
+    return pos;
   }
 
 }

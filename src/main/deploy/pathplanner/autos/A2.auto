@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "JM2"
+            "pathName": "A2M1"
           }
         },
         {
@@ -21,11 +21,17 @@
           "data": {
             "name": "Intake Out 1.0"
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "A2M2"
+          }
         }
       ]
     }
   },
   "resetOdom": false,
-  "folder": "Judge Autos",
+  "folder": "Audience Autos",
   "choreoAuto": false
 }

@@ -25,7 +25,7 @@
       ]
     }
   },
-  "resetOdom": true,
+  "resetOdom": false,
   "folder": "Judge Autos",
   "choreoAuto": false
 }

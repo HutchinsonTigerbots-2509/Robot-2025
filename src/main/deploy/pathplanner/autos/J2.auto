@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "JM2"
+            "pathName": "J2M1"
           }
         },
         {
@@ -20,6 +20,12 @@
           "type": "named",
           "data": {
             "name": "Intake Out 1.0"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "J2M2"
           }
         }
       ]

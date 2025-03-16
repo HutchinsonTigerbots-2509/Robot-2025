@@ -4,9 +4,8 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-import com.ctre.phoenix6.hardware.TalonFX;
-
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.IDConstants;
 
@@ -15,7 +14,9 @@ public class climber extends SubsystemBase {
 
   public WPI_TalonSRX mClimber = new WPI_TalonSRX(IDConstants.kClimbID);
 
-  public climber() {}
+  public climber() {
+    mClimber.setNeutralMode(NeutralMode.Brake);
+  }
 
   @Override
   public void periodic() {

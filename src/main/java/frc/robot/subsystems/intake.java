@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -12,7 +14,7 @@ import frc.robot.Constants.IDConstants;
 public class intake extends SubsystemBase {
   /** Creates a new intake. */
 
-  TalonFX mIntake = new TalonFX(IDConstants.kAlgaeIntakeID);
+  TalonSRX mIntake = new TalonSRX(IDConstants.kCoralIntakeID);
 
 
   public intake() {}
@@ -23,19 +25,19 @@ public class intake extends SubsystemBase {
   }
 
   public void intakeIn() {
-    mIntake.set(1);
+    mIntake.set(ControlMode.PercentOutput, -1);
+  }
+
+  public void intakeSet(double speed) {
+    mIntake.set(ControlMode.PercentOutput, speed);
   }
 
   public void intakeOut() {
-    mIntake.set(-1);
+    mIntake.set(ControlMode.PercentOutput, 1);
   }
 
   public void intakeStop() {
-    mIntake.set(0);
-  }
-
-  public double intakeSpeed() {
-    return mIntake.get();
+    mIntake.set(ControlMode.PercentOutput, 0);
   }
   
 }

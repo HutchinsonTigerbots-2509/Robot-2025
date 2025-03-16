@@ -5,12 +5,17 @@
 package frc.robot.subsystems;
 
 import java.io.IOException;
+import java.util.List;
+
 import org.json.simple.parser.ParseException;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.path.PathPlannerPath;
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -21,160 +26,281 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
+import frc.robot.Constants.IDConstants;
 
 public class pathPlannerDrive extends SubsystemBase {
-  /** Creates a new pathPlannerDrive. 
-   * @throws ParseException 
-   * @throws IOException */
+  /** Creates a new pathPlannerDrive.*/
+
+  RobotContainer rContainer;
+  climber sClimber;
+  DriveSubsystem sDrivetrain;
+  elevator sElevator;
+  intake sIntake;
+  kicker sKicker;
+  vision sVision;
 
    Pose2d fixerPose2d;
+   Pose2d startPose2d;
+   static Field2d field = new Field2d();
    Rotation2d fixerRotation2d;
    Translation2d fixeTranslation2d;
+   static RobotConfig config;
 
-   vision sVision;
-   RobotContainer rContainer;
+   SwerveDrivePoseEstimator eSwerveEstimator;
 
+   static SendableChooser<Command> autoSelect;
+   
+     
+    public pathPlannerDrive(climber kClimber, DriveSubsystem kDriveSubsystem,
+                            elevator kElevator, intake kIntake, 
+                            kicker kKicker, vision kVision) {
 
+      sDrivetrain = kDriveSubsystem;
 
-  
-  public pathPlannerDrive(DriveSubsystem sDrivetrain) throws IOException, ParseException {
-
-    Pose2d startPose2d = new Pose2d(0, 0, getRotation2d(sDrivetrain));
-
-    SwerveDrivePoseEstimator eSwerveEstimator = new SwerveDrivePoseEstimator(
-      getKinematics(sDrivetrain), getRotation2d(sDrivetrain), getModulePositions(sDrivetrain), startPose2d
-      );
-
-
-
-
-
-
-
-
-        //     *****     INITIALIZE PATH PLANNER BUILD     *****     //
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+      sClimber = kClimber;
+      sDrivetrain = kDriveSubsystem;
+      sElevator = kElevator;
+      sIntake = kIntake;
+      sKicker = kKicker;
+      sVision = kVision;
 
 
+      sDrivetrain.getPigeon2().reset();
+      autoSelect = new SendableChooser<Command>();
+   
+       
+      startPose2d = new Pose2d(0,0, new Rotation2d(0));
+
+      namedCommands();
+   
+
+      
+      
+   
+      //     *****     INITIALIZE PATH PLANNER BUILD     *****     //
+      //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+   
+   
+         try {
+           AutoBuilder.configure(
+                  () -> getPose2d(), // Robot pose supplier
+                  resetPos2d -> resetPos2d(startPose2d), // Method to reset odometry (will be called if your auto has a starting pose)
+                  () -> getChassisSpeeds(), // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+                  output -> driveChassis(output), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
+                  new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for holonomic drive trains
+                          new PIDConstants(1, 0.1, 0.0), // Translation PID constants
+                          new PIDConstants(1, 0.1, 0.0) // Rotation PID constants
+                  ),
+                  RobotConfig.fromGUISettings(), // The robot configuration
+                  () -> {
+                    // Boolean supplier that controls when the path will be mirrored for the red alliance
+                    // This will flip the path being followed to the red side of the field.
+                    // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+   
+                    var alliance = DriverStation.getAlliance();
+                    if (alliance.isPresent()) {
+                      return alliance.get() == DriverStation.Alliance.Red;
+                    }
+                    return false;
+                  },
+                  sDrivetrain // Reference to this subsystem to set requirements
+          );
+        } catch (IOException | ParseException e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        }
+
+    
+    buildAutoChooser();
+
+    SmartDashboard.putData(autoSelect);
+
+    ApplyStart();
+   
+    
+    
+    eSwerveEstimator = new SwerveDrivePoseEstimator(
+        getKinematics(), getRotation2d(), getModulePositions(), startPose2d
+        );
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+     }
+   
+     @Override
+      public void periodic() {
+        // This method will be called once per scheduler run
+        //SmartDashboard.getData(AutoBuilder.getCurrentPose().);
+
+        //TODO Check if when going between auto and tele this will reset the pose2d,  (Hint we don't want that)
+
+        if (DriverStation.isDisabled()) {
+          ApplyStart();
+          eSwerveEstimator.resetPose(startPose2d);
+        }
+       
+        eSwerveEstimator.update(getRotation2d(), getModulePositions());
+        field.setRobotPose(AutoBuilder.getCurrentPose());
+        SmartDashboard.putData(field);
+        SmartDashboard.putData(autoSelect);
+        SmartDashboard.putString("RobotPose", AutoBuilder.getCurrentPose().toString());
+        SmartDashboard.putNumber("FL", getModulePositions()[0].distanceMeters);
+        SmartDashboard.putNumber("FR", getModulePositions()[1].distanceMeters);
+        SmartDashboard.putNumber("RL", getModulePositions()[2].distanceMeters);
+        SmartDashboard.putNumber("RR", getModulePositions()[3].distanceMeters);
+        SmartDashboard.updateValues();
+       
+     }
+   
+     //** Returns the List of SwerveModulePositions in ( F:LR  R:LR ) order */
+     public SwerveModulePosition[] getModulePositions() {
+   
+       SwerveModulePosition FL = sDrivetrain.getModule(0).getPosition(false);
+       SwerveModulePosition FR = sDrivetrain.getModule(1).getPosition(false);
+       SwerveModulePosition RL = sDrivetrain.getModule(2).getPosition(false);
+       SwerveModulePosition RR = sDrivetrain.getModule(3).getPosition(false);
+   
+       SwerveModulePosition[] ModPositions = new SwerveModulePosition[] {
+         FL, FR, RL, RR
+       };
+   
+       return ModPositions;
+     }
+   
+     //** Returns the list of SwerveModuleStates in ( F:LR  R:LR ) order */
+     public SwerveModuleState[] getModuleStates() {
+       SwerveModuleState FL = sDrivetrain.getModule(0).getCurrentState();
+       SwerveModuleState FR = sDrivetrain.getModule(1).getCurrentState();
+       SwerveModuleState RL = sDrivetrain.getModule(2).getCurrentState();
+       SwerveModuleState RR = sDrivetrain.getModule(3).getCurrentState();
+   
+       SwerveModuleState[] ModStates = new SwerveModuleState[] {
+         FL, FR, RL, RR
+       };
+   
+       return ModStates;
+     }
+   
+     //** Returns the kinematics of the swervedrive from drivetrain */
+     public SwerveDriveKinematics getKinematics() {
+       SwerveDriveKinematics kinematics = sDrivetrain.getKinematics();
+       return kinematics;
+     }
+   
+     //** Returns the current Rotation2d of the robot from the pigeon2 */
+     public Rotation2d getRotation2d() {
+       Rotation2d pos = sDrivetrain.getPigeon2().getRotation2d();
+       return pos;
+     }
+   
+     public void setGyro(Double pos) {
+       sDrivetrain.getPigeon2().setYaw(pos);
+     }
+   
+     //** Returns the current Position2d of the robots drivetrain using an estimator */
+     public Pose2d getPose2d() {
+       Pose2d pos2d = eSwerveEstimator.getEstimatedPosition();
+       return pos2d;
+     }
+     
+     
+     //** Resets the Position2d of the swerve estimator */
+     public void resetPos2d(Pose2d pos) {
+       sDrivetrain.resetPose(pos);
+       setGyro(pos.getRotation().getDegrees());
+     }
+
+   
+     //** Returns the current ChassisSpeeds of the drivetrain */
+     public ChassisSpeeds getChassisSpeeds() {
+       ChassisSpeeds chassisSpeeds = sDrivetrain.getKinematics().toChassisSpeeds(getModuleStates());
+       return chassisSpeeds;
+     }
+
+   
+     //** Drives the robot with given speeds */
+     public void driveChassis(ChassisSpeeds speeds) {
+       RobotContainer.driveSwervePathPlanner(speeds);
+     }
+
+   
+     public void correctEsti() {
+       //TODO make this make correct position of from the seen april tag
+       fixerPose2d = new Pose2d(sVision.getX(), sVision.getY(), getRotation2d());
+       eSwerveEstimator.resetPose(fixerPose2d);
+     }
 
 
-    AutoBuilder.configure(
-            () -> getPose2d(eSwerveEstimator), // Robot pose supplier
-            resetPos2d -> resetPos2d(eSwerveEstimator, startPose2d), // Method to reset odometry (will be called if your auto has a starting pose)
-            () -> getChassisSpeeds(sDrivetrain), // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-            driveChassis -> driveChassis(sDrivetrain, driveChassis), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
-            new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for holonomic drive trains
-                    new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
-                    new PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants
-            ),
-            RobotConfig.fromGUISettings(), // The robot configuration
-            () -> {
-              // Boolean supplier that controls when the path will be mirrored for the red alliance
-              // This will flip the path being followed to the red side of the field.
-              // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+    public void ApplyStart() {
+      String autoName = autoSelect.getSelected().getName();
+      try {
+        AutoBuilder.resetOdom(PathPlannerAuto.getPathGroupFromAutoFile(autoName).get(0).getStartingHolonomicPose().get());
+        startPose2d = PathPlannerAuto.getPathGroupFromAutoFile(autoName).get(0).getStartingHolonomicPose().get();
+      } catch (IOException | ParseException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+    }
 
-              var alliance = DriverStation.getAlliance();
-              if (alliance.isPresent()) {
-                return alliance.get() == DriverStation.Alliance.Red;
-              }
-              return false;
-            },
-            sDrivetrain // Reference to this subsystem to set requirements
-    );
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+   
+     public static Field2d getField2d() {
+       return field;
+     }
+   
+    public static Command getAutonomousCommand() {
+      return autoSelect.getSelected();
   }
 
-  @Override
-  public void periodic() {
-    // This method will be called once per scheduler run
-    // SmartDashboard.putData(getPose2d(eSwerveEstimator));
-  }
+  /**
+     * Defines all named commands for the PathPlanner System, runs as a for loop with timeout n
+    */
+    public void namedCommands() {
+            
+        for (double n = .5; n <= 3; n = n + .5) {
 
-  //** Returns the List of SwerveModulePositions in ( F:LR  R:LR ) order */
-  public SwerveModulePosition[] getModulePositions(DriveSubsystem sDrivetrain) {
+        // Actions
+    
+            NamedCommands.registerCommand("Intake In " + n, new RunCommand(() -> sIntake.intakeIn()).withTimeout(n).andThen(new InstantCommand(() -> sIntake.intakeStop())));
+            NamedCommands.registerCommand("Intake Out " + n, new RunCommand(() -> sIntake.intakeOut()).withTimeout(n).andThen(new InstantCommand(() -> sIntake.intakeStop())));
+            NamedCommands.registerCommand("Climb Up " + n, new RunCommand(() -> sClimber.climbUp()).withTimeout(n).andThen(new InstantCommand(() -> sClimber.climbStop())));
+            NamedCommands.registerCommand("Climb Down " + n, new RunCommand(() -> sClimber.climbDown()).withTimeout(n).andThen(new InstantCommand(() -> sClimber.climbStop())));
+            NamedCommands.registerCommand("Lift Up " + n, new RunCommand(() -> sElevator.elevatorUp()).withTimeout(n).andThen(new InstantCommand(() -> sElevator.elevatorStop())));
+            NamedCommands.registerCommand("Lift Down " + n, new RunCommand(() -> sElevator.elevatorDown()).withTimeout(n).andThen(new InstantCommand(() -> sElevator.elevatorStop())));
+    
+        // Preset Poses
+    
+            NamedCommands.registerCommand("Floor " + n, new elevatorController(IDConstants.kFloorPos, sElevator).withTimeout(n));
+            NamedCommands.registerCommand("Bottom " + n, new elevatorController(IDConstants.kBottomPos, sElevator).withTimeout(n));
+            NamedCommands.registerCommand("Low " + n, new elevatorController(IDConstants.kLowPos, sElevator).withTimeout(n));
+            NamedCommands.registerCommand("Middle " + n, new elevatorController(IDConstants.kMiddlePos, sElevator).withTimeout(n));
+            NamedCommands.registerCommand("High " + n, new elevatorController(IDConstants.kHighPos, sElevator).withTimeout(n));
+        }
+    }
 
-    SwerveModulePosition FL = sDrivetrain.getModule(0).getPosition(false);
-    SwerveModulePosition FR = sDrivetrain.getModule(1).getPosition(false);
-    SwerveModulePosition RL = sDrivetrain.getModule(2).getPosition(false);
-    SwerveModulePosition RR = sDrivetrain.getModule(3).getPosition(false);
+    public void buildAutoChooser() {
+      autoSelect.setDefaultOption("M1", AutoBuilder.buildAuto("M1"));
+      List<String> options = AutoBuilder.getAllAutoNames();
+      for (String n : options) {
+        autoSelect.addOption(n, AutoBuilder.buildAuto(n));
+      }
+    }
 
-    SwerveModulePosition[] ModPositions = new SwerveModulePosition[] {
-      FL, FR, RL, RR
-    };
-
-    return ModPositions;
-  }
-
-  //** Returns the list of SwerveModuleStates in ( F:LR  R:LR ) order */
-  public SwerveModuleState[] getModuleStates(DriveSubsystem sDrivetrain) {
-    SwerveModuleState FL = sDrivetrain.getModule(0).getCurrentState();
-    SwerveModuleState FR = sDrivetrain.getModule(1).getCurrentState();
-    SwerveModuleState RL = sDrivetrain.getModule(2).getCurrentState();
-    SwerveModuleState RR = sDrivetrain.getModule(3).getCurrentState();
-
-    SwerveModuleState[] ModStates = new SwerveModuleState[] {
-      FL, FR, RL, RR
-    };
-
-    return ModStates;
-  }
-
-  //** Returns the kinematics of the swervedrive from drivetrain */
-  public SwerveDriveKinematics getKinematics(DriveSubsystem sDrivetrain) {
-    SwerveDriveKinematics kinematics = sDrivetrain.getKinematics();
-    return kinematics;
-  }
-
-  //** Returns the current Rotation2d of the robot from the pigeon2 */
-  public Rotation2d getRotation2d(DriveSubsystem sDrivetrain) {
-    Rotation2d pos = sDrivetrain.getPigeon2().getRotation2d();
-    return pos;
-  }
-
-  //** Returns the current Position2d of the robots drivetrain using an estimator */
-  public Pose2d getPose2d(SwerveDrivePoseEstimator estimator) {
-    Pose2d pos2d = estimator.getEstimatedPosition();
-    return pos2d;
-  }
-  
-  
-  //** Resets the Position2d of the swerve estimator */
-  public void resetPos2d(SwerveDrivePoseEstimator estimator, Pose2d pos) {
-    estimator.resetPose(pos);
-  }
-
-  //** Returns the current ChassisSpeeds of the drivetrain */
-  public ChassisSpeeds getChassisSpeeds(DriveSubsystem sDrivetrain) {
-    ChassisSpeeds chassisSpeeds = sDrivetrain.getKinematics().toChassisSpeeds(getModuleStates(sDrivetrain));
-    return chassisSpeeds;
-  }
-
-  //** Drives the robot with given speeds */
-  public void driveChassis(DriveSubsystem sDrivetrain, ChassisSpeeds speeds) {
-    rContainer.driveSwerveVision(speeds);
-  }
-
-  public void correctEsti(SwerveDrivePoseEstimator estimator, DriveSubsystem sDrivetrain) {
-    //TODO make this make correct position of from the seen april tag
-    fixerPose2d = new Pose2d(sVision.getX(), sVision.getY(), getRotation2d(sDrivetrain));
-    estimator.resetPose(fixerPose2d);
-  }
 }

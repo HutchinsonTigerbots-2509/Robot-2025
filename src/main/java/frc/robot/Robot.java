@@ -13,6 +13,7 @@ import frc.robot.Constants.IDConstants;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.subsystems.DriveSubsystem;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
@@ -21,12 +22,6 @@ public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
   private final RobotContainer m_robotContainer;
-  private DriveSubsystem m_driveSubsystem;
-
-  private DriveSubsystem Ddrivetrain = SwerveConstants.createDrivetrain();
-
-
-  
 
   public Robot() {
     //** Subsystems */
@@ -52,18 +47,10 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
+    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
-    }
-
-        // m_driveSubsystem.setDefaultCommand(
-        //     // Drivetrain will execute this command periodically
-        //     m_driveSubsystem.applyRequest(() ->
-        //         RobotContainer.drive.withVelocityX(-RobotContainer.jJoystick.getLeftY() * RobotContainer.MaxSpeed) // Drive forward with negative Y (forward)
-        //             .withVelocityY(-RobotContainer.jJoystick.getLeftX() * RobotContainer.MaxSpeed) // Drive left with negative X (left)
-        //             .withRotationalRate(-RobotContainer.jJoystick.getRightX() * RobotContainer.MaxAngularRate) // Drive counterclockwise with negative X (left)
-        //     )
-        // );    
+    }   
   }
 
   @Override

@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.PIDCommand;
 import frc.robot.subsystems.elevator;
 
@@ -42,6 +43,11 @@ public class elevatorController extends PIDCommand {
   // Returns true when the command shoutld end.
   @Override
   public boolean isFinished() {
-    return this.getController().atSetpoint();
+
+    if (DriverStation.isAutonomous())
+      return this.getController().atSetpoint();
+    else
+      return false;
+    
   }
 }
