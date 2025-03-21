@@ -17,6 +17,7 @@ import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathPlannerPath;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -32,6 +33,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.IDConstants;
@@ -56,6 +58,11 @@ public class pathPlannerDrive extends SubsystemBase {
 
    SwerveDrivePoseEstimator eSwerveEstimator;
 
+   public static PIDController rotationController = new PIDController(
+   1, 
+   0.5, 
+   0);
+
    static SendableChooser<Command> autoSelect;
    
      
@@ -79,6 +86,8 @@ public class pathPlannerDrive extends SubsystemBase {
        
       startPose2d = new Pose2d(0,0, new Rotation2d(0));
 
+      rotationController.setTolerance(2);
+
       namedCommands();
    
 
@@ -96,18 +105,19 @@ public class pathPlannerDrive extends SubsystemBase {
                   () -> getChassisSpeeds(), // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
                   output -> driveChassis(output), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
                   new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for holonomic drive trains
-                          new PIDConstants(1, 0.1, 0.0), // Translation PID constants
-                          new PIDConstants(1, 0.1, 0.0) // Rotation PID constants
+                          new PIDConstants(5, 0.5, 0.0), // Translation PID constants
+                          new PIDConstants(7, 0.5, 0.0) // Rotation PID constants
                   ),
                   RobotConfig.fromGUISettings(), // The robot configuration
                   () -> {
+                    
                     // Boolean supplier that controls when the path will be mirrored for the red alliance
                     // This will flip the path being followed to the red side of the field.
                     // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
    
                     var alliance = DriverStation.getAlliance();
                     if (alliance.isPresent()) {
-                      return alliance.get() == DriverStation.Alliance.Red;
+                      return false; // alliance.get() == DriverStation.Alliance.Red;
                     }
                     return false;
                   },
@@ -156,9 +166,8 @@ public class pathPlannerDrive extends SubsystemBase {
           ApplyStart();
           eSwerveEstimator.resetPose(startPose2d);
         }
-       
-        eSwerveEstimator.update(getRotation2d(), getModulePositions());
         field.setRobotPose(AutoBuilder.getCurrentPose());
+        eSwerveEstimator.update(getRotation2d(), getModulePositions());
         SmartDashboard.putData(field);
         SmartDashboard.putData(autoSelect);
         SmartDashboard.putString("RobotPose", AutoBuilder.getCurrentPose().toString());
@@ -249,6 +258,25 @@ public class pathPlannerDrive extends SubsystemBase {
      }
 
 
+    public void ApplyStartCool() {
+      String autoName = autoSelect.getSelected().toString();
+      try {
+        if(DriverStation.getAlliance().get() == DriverStation.Alliance.Blue) {
+          AutoBuilder.resetOdom(PathPlannerAuto.getPathGroupFromAutoFile(autoName).get(0).getStartingHolonomicPose().get());
+          startPose2d = PathPlannerAuto.getPathGroupFromAutoFile(autoName).get(0).getStartingHolonomicPose().get();
+          //SmartDashboard.putString("Side", "blue");
+        }
+        else if(DriverStation.getAlliance().get() == DriverStation.Alliance.Red){
+          AutoBuilder.resetOdom(PathPlannerAuto.getPathGroupFromAutoFile(autoName).get(0).flipPath().mirrorPath().getStartingHolonomicPose().get());
+          startPose2d = PathPlannerAuto.getPathGroupFromAutoFile(autoName).get(0).flipPath().mirrorPath().getStartingHolonomicPose().get();
+          //SmartDashboard.putString("Side", "red");
+        }
+      } catch (IOException | ParseException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+    }
+
     public void ApplyStart() {
       String autoName = autoSelect.getSelected().getName();
       try {
@@ -258,7 +286,7 @@ public class pathPlannerDrive extends SubsystemBase {
         // TODO Auto-generated catch block
         e.printStackTrace();
       }
-    }
+    };
 
    
      public static Field2d getField2d() {
@@ -266,8 +294,15 @@ public class pathPlannerDrive extends SubsystemBase {
      }
    
     public static Command getAutonomousCommand() {
+      // Command auto;
+      // if(DriverStation.getAlliance().get() == DriverStation.Alliance.Blue)
+      //   auto = AutoBuilder.buildAuto(autoSelect.getSelected().);
+      // else
+      //   auto = AutoBuilder.buildAuto(autoSelect.getSelected());
+      // return auto;
       return autoSelect.getSelected();
   }
+  
 
   /**
      * Defines all named commands for the PathPlanner System, runs as a for loop with timeout n
@@ -284,8 +319,18 @@ public class pathPlannerDrive extends SubsystemBase {
             NamedCommands.registerCommand("Climb Down " + n, new RunCommand(() -> sClimber.climbDown()).withTimeout(n).andThen(new InstantCommand(() -> sClimber.climbStop())));
             NamedCommands.registerCommand("Lift Up " + n, new RunCommand(() -> sElevator.elevatorUp()).withTimeout(n).andThen(new InstantCommand(() -> sElevator.elevatorStop())));
             NamedCommands.registerCommand("Lift Down " + n, new RunCommand(() -> sElevator.elevatorDown()).withTimeout(n).andThen(new InstantCommand(() -> sElevator.elevatorStop())));
+
+        // Vision Positions
+
+            NamedCommands.registerCommand("VisionR " + n, new RunCommand(() -> driveChassis(new ChassisSpeeds(-.5, sVision.getMoveVision(IDConstants.kAprilRightPole),0))).withTimeout(n));
+            NamedCommands.registerCommand("VisionL " + n, new RunCommand(() -> driveChassis(new ChassisSpeeds(-.5, sVision.getMoveVision(IDConstants.kAprilLeftPole),0))).withTimeout(n));
+            NamedCommands.registerCommand("VisionF " + n, new RunCommand(() -> driveChassis(new ChassisSpeeds(-.5, sVision.getMoveVision(IDConstants.kAprilFeederStation),0))).withTimeout(n));
     
         // Preset Poses
+
+            NamedCommands.registerCommand("MoveVisionFeeder " + (n + 3), fixMoveAuto(0, 0, (n + 3.0)));
+            NamedCommands.registerCommand("MoveVisionLeft " + (n + 3), fixMoveAuto(-.4, 0, (n + 3.0)));
+            NamedCommands.registerCommand("MoveVisionRight " + (n + 3), fixMoveAuto(.4, 0, (n + 3.0)));
     
             NamedCommands.registerCommand("Floor " + n, new elevatorController(IDConstants.kFloorPos, sElevator).withTimeout(n));
             NamedCommands.registerCommand("Bottom " + n, new elevatorController(IDConstants.kBottomPos, sElevator).withTimeout(n));
@@ -300,7 +345,28 @@ public class pathPlannerDrive extends SubsystemBase {
       List<String> options = AutoBuilder.getAllAutoNames();
       for (String n : options) {
         autoSelect.addOption(n, AutoBuilder.buildAuto(n));
-      }
+      };
+    }
+
+    public SequentialCommandGroup fixMoveAuto(double kCam, double kRot, double timeout) {
+      double desiredPos = kCam;
+      double desiredRot = kRot;
+      double driveTime = 1;
+      double fixerTime = timeout - driveTime;
+
+      return new SequentialCommandGroup(
+        new RunCommand(() -> {driveChassis(new ChassisSpeeds(0, sVision.getMoveVision(desiredPos), getRotationMove(desiredRot)));}).withTimeout(fixerTime),
+        new RunCommand(() -> {driveChassis(new ChassisSpeeds(-.5, 0, getRotationMove(desiredRot)));}).withTimeout(driveTime)
+      );
+    }
+
+    public double getRotationMove(double dAngle) {
+      double speed;
+      double desiredAngle = dAngle;
+
+      speed = rotationController.calculate(getRotation2d().getDegrees(), desiredAngle);
+
+      return speed;
     }
 
 }

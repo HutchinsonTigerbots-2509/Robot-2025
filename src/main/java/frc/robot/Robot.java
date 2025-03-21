@@ -12,6 +12,7 @@ import org.photonvision.proto.Photon;
 import frc.robot.Constants.IDConstants;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.subsystems.DriveSubsystem;
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -61,6 +62,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
+    m_robotContainer.setSwitchablePow(false);
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
@@ -71,7 +73,9 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void teleopExit() {}
+  public void teleopExit() {
+    m_robotContainer.setSwitchablePow(true);
+  }
 
   @Override
   public void testInit() {

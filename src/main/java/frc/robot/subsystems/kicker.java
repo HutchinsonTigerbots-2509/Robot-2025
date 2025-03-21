@@ -19,13 +19,13 @@ public class kicker extends SubsystemBase {
     // This method will be called once per scheduler run
   }
 
-  public void kickerStart() {
-    mKicker.set(ControlMode.PercentOutput, -1);
+  public void kickerSet(double speed) {
+    mKicker.set(ControlMode.PercentOutput, speed);
   }
 
-  public void kickerReverse() {
-    mKicker.set(ControlMode.PercentOutput, 1);
-  }
+  // public void kickerReverse() {
+  //   mKicker.set(ControlMode.PercentOutput, 1);
+  // }
 
   public void kickerStop() {
     mKicker.set(ControlMode.PercentOutput, 0);

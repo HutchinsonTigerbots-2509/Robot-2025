@@ -13,6 +13,19 @@ public class IDConstants {
     public static final double kDriveTrainMultiplier = .50;
     public static final double kDriveTrainCreep = .15;
 
+    public static final boolean kFieldOriented = false;
+
+    // Drive PID #s
+    public static final double kDriveP = 1;
+    public static final double kDriveI = 0;
+    public static final double kDriveD = 0;
+    public static final double kDriveUpdateRate = 40;
+
+    // April Tag PosesOnScreen for different drops
+    public static final double kAprilFeederStation = 0;
+    public static final double kAprilRightPole = .6;
+    public static final double kAprilLeftPole = -.6;
+
     //     *****     JOYSTICKS     *****     //
 
     public static final int kControllerID = 0;
@@ -31,7 +44,7 @@ public class IDConstants {
     public static final double kBottomPos = 6500;
     public static final double kLowPos = 10700;
     public static final double kMiddlePos = 16600;
-    public static final double kHighPos = 25000;
+    public static final double kHighPos = 25500;
 
     public static final int kLiftSensorID = 21;
     public static final int kDistanceSensorID = 6;
@@ -51,8 +64,10 @@ public class IDConstants {
     public static final int kClimbID = 55;
 
     //     *****     VISION      *****     //
-    public static final String kCamera1 = "Camera1";
-    public static final String kCamera2 = "Camera2";
+    public static final String kCamera1 = "CameraOut";
+    public static final String kCamera2 = "CameraIn";
+    public static final double kCamera1Res = 864;
+    public static final double kCamera2Res = 900;
 
     //     *****     LIMIT SWITCHES      *****     //
     public static final int kElevatorBottomSwitch = 9;

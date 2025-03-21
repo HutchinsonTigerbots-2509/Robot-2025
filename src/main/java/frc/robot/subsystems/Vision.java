@@ -14,10 +14,17 @@ import java.util.List;
 import java.util.Map;
 
 import org.photonvision.PhotonCamera;
+import org.photonvision.proto.Photon;
+import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
+import org.photonvision.targeting.TargetCorner;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.IDConstants;
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cameraserver.CameraServerShared;
+import edu.wpi.first.cscore.UsbCamera;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -29,79 +36,89 @@ public class vision extends SubsystemBase {
 
   DriveSubsystem sDrivetrain;
 
-  PhotonCamera camera1 = new PhotonCamera(IDConstants.kCamera1);
-  PhotonCamera camera2 = new PhotonCamera(IDConstants.kCamera2);
-  boolean targetVisible = false;
+  public static PhotonCamera camera1 = new PhotonCamera(IDConstants.kCamera1);
+  public static PhotonCamera camera2 = new PhotonCamera(IDConstants.kCamera2);
+  public static boolean targetVisible = false;
 
-  public Pose2d aPose2d;
+  public static Pose2d aPose2d;
 
-  public double targetYaw = 0.0;
-  public double trueX;
-  public double trueY;
-  public double tagAngle;
-  public double trueDistance = 0.0;
-  public double posOnScreen = 0;
-
-  HashMap<List, List> targetList = new HashMap<List, List>();
-  ArrayList<List> targetIDList = new ArrayList<List>();
-  ArrayList<List> targetPOSList = new ArrayList<List>();
+  public static double targetYaw = 0.0;
+  public static double trueX;
+  public static double trueY;
+  public static double tagAngle;
+  public static double trueDistance = 0.0;
+  public static double posOnScreen = 0;
+  public static double posOnScreenOffset = IDConstants.kCamera1Res / 2;
+  public static PIDController visionDrivePID;
+  public static double kP = 1.5;
+  public static double kI = 0.5;
+  public static double kD = 0;
+  
+  public static List<PhotonPipelineResult> resultCam1;
+  public static List<PhotonPipelineResult> resultCam2;
+  public static PhotonPipelineResult result;
+  public static PhotonTrackedTarget target;
+  public static PhotonTrackedTarget defaultTarget;
+  public static List<TargetCorner> targetCorners;
 
   /** Creates a new vision. */
   public vision() {
+    
+    defaultTarget = new PhotonTrackedTarget();
+    target = defaultTarget;
+    visionDrivePID = new PIDController(
+      kP, 
+      kI, 
+      kD);
+    visionDrivePID.setTolerance(.01);
+    camera1.setDriverMode(false);
+    camera2.setDriverMode(false);
   }
 
   @Override
   public void periodic() {
+    gainResults();
     // This method will be called once per scheduler run
-    //SmartDashboard.putNumber("Screen", getTagPosOnScreen());
-
+    SmartDashboard.putNumber("Screen", getTagPosOnScreen());
+    SmartDashboard.putNumber("tag Angle", fetchTagAngle());
+    SmartDashboard.putBoolean("SeeTag", getSeeTag());
+    SmartDashboard.updateValues();
   }
+
+
   /** Fetch results given from the 2 functional PhotonVision based cameras */
   // @SuppressWarnings({ "unchecked", "rawtypes" })
   public void gainResults() {
-    // List<Object> targetList = new ArrayList<Object>();
-    // HashMap<List, List> targetList = new HashMap<List, List>();
-    // ArrayList<List> targetIDList = new ArrayList<List>();
-    // ArrayList<List> targetPOSList = new ArrayList<List>();
 
-    var resultCam1 = camera1.getAllUnreadResults();
-    var resultCam2 = camera2.getAllUnreadResults();
-    if (!resultCam1.isEmpty()) {
-      var result = resultCam1.get(resultCam1.size() - 1);
-      if (result.hasTargets()) {
-        for (var target : result.getTargets()) {
-          // targetIDList.addAll((Collection<? extends List<PhotonTrackedTarget>>) target); TODO: fix stack errors
-          // targetPOSList.addAll((Collection<? extends List<Integer>>) result.getTargets());          
+    resultCam1 = camera1.getAllUnreadResults();
+    resultCam2 = camera2.getAllUnreadResults();
+
+
+    if (!resultCam1.isEmpty() || !resultCam2.isEmpty()) {
+      targetVisible = true;
+      if (!resultCam1.isEmpty()) {
+        result = resultCam1.get(resultCam1.size() - 1);
+        if (result.hasTargets()) {
+          target = result.getBestTarget();
+        }
+      }
+
+      else if (!resultCam2.isEmpty() && resultCam1.isEmpty()) {
+        result = resultCam2.get(resultCam2.size() - 1);
+        if (result.hasTargets()) {   
+          target = result.getBestTarget();
         }
       }
     }
-
-    if (!resultCam2.isEmpty()) {
-      var result = resultCam2.get(resultCam2.size() - 1);
-      if (result.hasTargets()) {   
-        for (var target : result.getTargets()) { 
-          // targetIDList.addAll((Collection<? extends List<PhotonTrackedTarget>>) target);
-          // targetPOSList.addAll((Collection<? extends List<Integer>>) result.getTargets());
-        }     
-      }
+    else {
+      targetVisible = false;
     }
-
-    targetList.put(targetIDList, targetPOSList);
-    
-
-    // targetList.put(resultCam2, resultCam2);
-    // targetList.put("POS", targetPOSList);
-
-    // targetList.get("ID");
-    // targetList.get("POS");
-
-    // TODO: verify the output of these two lists and their listed order.
-    
   }
 
-  //** Call this method if you need to split your target IDs and positions/results. */
-  public void splitCameraResults() {
-
+  public static Boolean getSeeTag() {
+    Boolean seeTag;
+    seeTag = targetVisible;
+    return seeTag;
   }
 
 
@@ -113,77 +130,35 @@ public class vision extends SubsystemBase {
    * 
    * @return Distance from all vectors using a transform3d, in meters. Specifically getBestCameraToTarget();
    */
-  public double fetchTagDistance1() {
-    var resultCam1 = camera1.getAllUnreadResults();
-    var result = resultCam1.get(resultCam1.size() - 1);
-    var target = result.getTargets();
-        double trueDistance = (target.get(0)).getBestCameraToTarget().getZ();
-    //   }
-    // }
+  public double fetchTagDistance() {
+    double trueDistance = target.getBestCameraToTarget().getX();
+    if (trueDistance == defaultTarget.getBestCameraToTarget().getX())
+      return 0;
     return trueDistance;
   }
 
-  /** Pulls distance using april tag positions last recorded from the field/initialized positions. <p>
-   *  Only pulls distance from the first initialized camera. <p>
-   * 
-   * references first indexed tag when called.
-   * 
-   * @return Distance from all vectors using a transform3d, in meters. Specifically getBestCameraToTarget();
-   */
-  public double fetchTagDistance2() {
-    var resultCam2 = camera2.getAllUnreadResults();
-    var result = resultCam2.get(resultCam2.size() - 1);
-    var target = result.getTargets();
-    // if (result.hasTargets()) {
-    //   for (var target : result.getTargets()) {
-        double trueDistance = (target.get(0)).getBestCameraToTarget().getZ();
-    //   }
-    // }
-    return trueDistance;
-  }
-
-  public double fetchTagAngle1() {
-    var resultCam1 = camera1.getAllUnreadResults();
-    var result = resultCam1.get(resultCam1.size() - 1);
-    var target = result.getTargets();
-    double tagAngle = (target.get(0)).getBestCameraToTarget().getRotation().getAngle();
-    return tagAngle;
-  }
-
-  public double fetchTagAngle2() {
-    var resultCam2 = camera2.getAllUnreadResults();
-    var result = resultCam2.get(resultCam2.size() - 1);
-    var target = result.getTargets();
-    double tagAngle = (target.get(0)).getBestCameraToTarget().getRotation().getAngle();
+  public double fetchTagAngle() {
+    double tagAngle = target.getPitch();
+    if (tagAngle == defaultTarget.getPitch())
+      return 0;
     return tagAngle;
   }
   
-  
-  
-
-
 
   //**   Dereks booty land */
 
   public Pose2d getAprilPos() {
 
-    var resultCam1 = camera1.getAllUnreadResults();
-    var result = resultCam1.get(resultCam1.size() - 1);
-    var target = result.getBestTarget().getBestCameraToTarget();
-    
-    aPose2d = new Pose2d(target.getX(), target.getY(), target.getRotation().toRotation2d());
+    //aPose2d = new Pose2d(target.getX(), target.getY(), target.getRotation().toRotation2d());
 
-    return aPose2d;
+    return null;
   }
 
 
 
   public double getAprilDistance() {
-    var resultCam1 = camera1.getAllUnreadResults();
-    var result = resultCam1.get(resultCam1.size() - 1);
-    var target = result.getTargets();
-        double trueDistanceX = (target.get(0)).getBestCameraToTarget().getMeasureX().in(Meters);
-        double trueDistanceY = (target.get(0)).getBestCameraToTarget().getMeasureY().in(Meters);
+    double trueDistanceX = target.getBestCameraToTarget().getMeasureX().in(Meters);
+    double trueDistanceY = target.getBestCameraToTarget().getMeasureY().in(Meters);
     double DistanceToTarget =  Math.pow(.5,(trueDistanceX * trueDistanceX) + (trueDistanceY * trueDistanceY));
     return DistanceToTarget;
   }
@@ -206,38 +181,48 @@ public class vision extends SubsystemBase {
    *
    * @return double from -1 to 1
    */
-  public double getTagPosOnScreen() {
+  public static double getTagPosOnScreen() {
 
-    var resultCam1 = camera1.getAllUnreadResults();
-    var result = resultCam1.get(resultCam1.size() -1);
-    var target = result.getBestTarget();
+    double targetXLeft;
+    double targetXRight;
 
+    targetCorners = target.getDetectedCorners();
 
-    var targetCorners = target.getDetectedCorners();
+    if (targetCorners != defaultTarget.getDetectedCorners()) {
 
-    var targetXLeft = Double.valueOf((targetCorners.get(3)).toString());
-    var targetXRight = Double.valueOf((targetCorners.get(2)).toString());
-
-    var medianTarget =  (targetXLeft + targetXRight) * .5;
+      targetXLeft = targetCorners.get(3).x;
+      targetXRight = targetCorners.get(2).x;
+    }
+    else {
+      targetXLeft = posOnScreenOffset;
+      targetXRight = posOnScreenOffset;
+    }
 
     
 
-    //TODO Calculate posOnScreen
-    return medianTarget;
-  }
+    double medianTarget =  (targetXLeft + targetXRight) * .5;
 
-  public double getVisionDrive() {
-    double vSpeed = getTagPosOnScreen() * 100;
-    if(Math.abs(vSpeed) < 5) {
-      vSpeed = 0;
-    }
-    return vSpeed;
+    double pos = (medianTarget - posOnScreenOffset) / posOnScreenOffset;
+
+    return pos;
   }
 
   public Pose2d getPose2d() {
     Pose2d pos;
     pos = new Pose2d(0, 0, null);
     return pos;
+  }
+
+  public double getMoveVision(double desiredPos) {
+    SmartDashboard.putNumber("visionDriveSpeed", visionDrivePID.calculate(getTagPosOnScreen(), desiredPos));
+    if (visionDrivePID.atSetpoint())
+      return 0;
+    return -visionDrivePID.calculate(getTagPosOnScreen(), desiredPos);
+  }
+
+  public void setCameraDriveMode(Boolean mode) {
+    camera1.setDriverMode(mode);
+    camera2.setDriverMode(mode);
   }
 
 }

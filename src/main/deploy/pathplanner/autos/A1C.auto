@@ -13,7 +13,19 @@
         {
           "type": "named",
           "data": {
+            "name": "MoveVisionLeft 3.0"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "High 3.0"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.5
           }
         },
         {
@@ -21,11 +33,17 @@
           "data": {
             "name": "Intake Out 1.0"
           }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Floor 3.0"
+          }
         }
       ]
     }
   },
-  "resetOdom": false,
+  "resetOdom": true,
   "folder": "Audience Autos",
   "choreoAuto": false
 }

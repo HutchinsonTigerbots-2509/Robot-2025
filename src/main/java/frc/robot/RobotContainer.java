@@ -11,10 +11,13 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -59,6 +62,20 @@ public class RobotContainer {
     
         public static Field2d field = new Field2d();
 
+        public static boolean visionDriveMode = false;
+        public static boolean visionDrive = true;
+        public static boolean fieldOriented = true;
+        public static double currentVisionPos = 0;
+
+        public static PIDController drivePID = new PIDController(
+            IDConstants.kDriveP, 
+            IDConstants.kDriveI, 
+            IDConstants.kDriveD, 
+            IDConstants.kDriveUpdateRate
+            );
+
+        public static final PowerDistribution powerBoard = new PowerDistribution(1, ModuleType.kRev);
+
         
     
     
@@ -71,8 +88,9 @@ public class RobotContainer {
     
     
         public final static SwerveRequest.RobotCentric drive = new SwerveRequest.RobotCentric()
-                .withDeadband(MaxSpeed * 0.05).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
+                .withDeadband(MaxSpeed * 0.01).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
                 .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
+                
     
     
         public final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
@@ -95,7 +113,6 @@ public class RobotContainer {
         public final Dashboard dashboard = new Dashboard();
     
     
-    
         // 🚨🚨🚨🚨🚨🚨🚨🚨🚨    *****     START DEFAULT COMMANDS     *****     //🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
     
@@ -111,7 +128,10 @@ public class RobotContainer {
     
             // 🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨    *****     END DEFAULT COMMANDS     *****     //🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
-    
+            RunCommand normDrive = new RunCommand(() -> driveController());
+            normDrive.addRequirements(sDrivetrain);
+            RunCommand creepDrive = new RunCommand(() -> driveControllerCreep());
+            creepDrive.addRequirements(sDrivetrain);
             
     
     
@@ -133,14 +153,19 @@ public class RobotContainer {
             //     )
             // );
             
-            
+            // sDrivetrain.setDefaultCommand(
+            //     // Drivetrain will execute this command periodically
+            //     sDrivetrain.applyRequest(() ->  
+            //         drive.withVelocityX((Slewer1.calculate(-jJoystick.getLeftY()) * MaxSpeed) * IDConstants.kDriveTrainMultiplier) // Drive forward with negative Y (forward)
+            //             .withVelocityY((Slewer2.calculate(-jJoystick.getLeftX()) * MaxSpeed) * IDConstants.kDriveTrainMultiplier) // Drive left with negative X (left)
+            //             .withRotationalRate(-jJoystick.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
+            //             )
+            //     );
+
+            //TODO Make this run correctly with the required subsystem
             sDrivetrain.setDefaultCommand(
                 // Drivetrain will execute this command periodically
-                sDrivetrain.applyRequest(() ->  
-                    drive.withVelocityX((Slewer1.calculate(-jJoystick.getLeftY()) * MaxSpeed) * IDConstants.kDriveTrainMultiplier) // Drive forward with negative Y (forward)
-                        .withVelocityY((Slewer2.calculate(-jJoystick.getLeftX()) * MaxSpeed) * IDConstants.kDriveTrainMultiplier) // Drive left with negative X (left)
-                        .withRotationalRate(-jJoystick.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
-                        )
+                normDrive
                 );
     
             
@@ -158,7 +183,7 @@ public class RobotContainer {
             // 🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨    *****     BUTTON BIND/MAPPING     *****     //🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
     
-            jJoystick.rightBumper().whileTrue(sDrivetrain.applyRequest(() -> brake));
+            jJoystick.b().whileTrue(sDrivetrain.applyRequest(() -> brake));
     
             JoystickButton ClimbUpBtn;
             ClimbUpBtn = new JoystickButton(jButtonBoardPrimary, 3);
@@ -210,32 +235,30 @@ public class RobotContainer {
             LiftHighBtn = new JoystickButton(jButtonBoardPrimary, 12);
             LiftHighBtn.onTrue(new elevatorController(IDConstants.kHighPos, sElevator).until(() -> (LiftUpBtn.getAsBoolean() || LiftDownBtn.getAsBoolean())));
     
+            JoystickButton ClimbBreakerButton;
+            ClimbBreakerButton = new JoystickButton(jButtonBoardSecondary, 10);
+            ClimbBreakerButton.onTrue(new InstantCommand(() -> reverseSwitchPowerBoard()));
+
             JoystickButton KickerBtn;
             KickerBtn = new JoystickButton(jButtonBoardSecondary, 12);
-            KickerBtn.whileTrue(new RunCommand(() -> sKicker.kickerStart())).onFalse(new InstantCommand(() -> sKicker.kickerStop()));
+            KickerBtn.whileTrue(new RunCommand(() -> sKicker.kickerSet(.35))).onFalse(new InstantCommand(() -> sKicker.kickerStop()));
     
             JoystickButton KickerReverseBtn;
             KickerReverseBtn = new JoystickButton(jButtonBoardSecondary, 11);
-            KickerReverseBtn.whileTrue(new RunCommand(() -> sKicker.kickerReverse())).onFalse(new InstantCommand(() -> sKicker.kickerStop()));
+            KickerReverseBtn.whileTrue(new RunCommand(() -> sKicker.kickerSet(-.3))).onFalse(new InstantCommand(() -> sKicker.kickerStop()));
+
     
     
-    
-    
-            
-    
-            // jJoystick.povDown().toggleOnTrue(sDrivetrain.applyRequest(() ->
-            //             drive.withVelocityX(Slewer.calculate(-jJoystick.getLeftY() * MaxSpeed))
-            //             .withVelocityY(sVision.getVisionDrive())
-            //             .withRotationalRate(Slewer.calculate(-jJoystick.getRightX() * MaxSpeed))
-            //     ) 
-            // );
-    
-            jJoystick.povDown().toggleOnTrue(sDrivetrain.applyRequest(() ->
-                drive.withVelocityX((-jJoystick.getLeftY() * MaxSpeed) * IDConstants.kDriveTrainCreep) // Drive forward with negative Y (forward)
-                    .withVelocityY((-jJoystick.getLeftX() * MaxSpeed) * IDConstants.kDriveTrainCreep) // Drive left with negative X (left)
-                    .withRotationalRate((-jJoystick.getRightX() * MaxAngularRate) * IDConstants.kDriveTrainCreep * 3) // Drive counterclockwise with negative X (left)
-            ));
-    
+            jJoystick.povDown().toggleOnTrue(creepDrive);
+            jJoystick.leftBumper().onTrue(new InstantCommand(() -> {visionDrive = !visionDrive; SmartDashboard.putBoolean("visionDriveOn", visionDrive);}));
+            jJoystick.rightBumper().onTrue(new InstantCommand(() -> {fieldOriented = !fieldOriented; SmartDashboard.putBoolean("fieldOriented", fieldOriented);}));
+            jJoystick.y().onTrue(new InstantCommand(() -> sPathPlannerDrive.setGyro(0.0)));
+            jJoystick.a().onTrue(new InstantCommand(() -> {visionDriveMode = !visionDriveMode; sVision.setCameraDriveMode(visionDriveMode);}));
+
+            jJoystick.povLeft().onTrue(new InstantCommand(() -> currentVisionPos = IDConstants.kAprilLeftPole));
+            jJoystick.povRight().onTrue(new InstantCommand(() -> currentVisionPos = IDConstants.kAprilRightPole));
+            jJoystick.povUp().onTrue(new InstantCommand(() -> currentVisionPos = IDConstants.kAprilFeederStation));
+
         }
     
         public static void driveSwervePathPlanner(ChassisSpeeds speeds) {
@@ -245,22 +268,101 @@ public class RobotContainer {
 
             if (DriverStation.isAutonomous()) {
             sDrivetrain.applyRequest(() -> 
-            drive.withVelocityX(x).withVelocityY(y).withRotationalRate(-z)).execute();
+            drive.withVelocityX(x).withVelocityY(y).withRotationalRate(z)).execute();
             SmartDashboard.putNumber("txS", drive.VelocityX);
             SmartDashboard.putNumber("tyS", drive.VelocityY);
             SmartDashboard.putNumber("tzS", drive.RotationalRate);
-            SmartDashboard.putNumber("xS", x);
-            SmartDashboard.putNumber("yS", y);
-            SmartDashboard.putNumber("zS", z);
             SmartDashboard.putBoolean("HandDriveDefault", false);
             SmartDashboard.updateValues();
             }
+        }
+
+        //** Function that is set as default command for sDrivetrain with fieldOriented changing it on and off */
+        public static void driveController() {
+            if(fieldOriented) {
+                sDrivetrain.applyRequest(() ->  
+                    drive.withVelocityX((Slewer1.calculate(calculateFieldX(jJoystick)) * MaxSpeed) * IDConstants.kDriveTrainMultiplier) // Drive forward with negative Y (forward)
+                        .withVelocityY((Slewer2.calculate(calculateFieldY(jJoystick)) * MaxSpeed) * IDConstants.kDriveTrainMultiplier) // Drive left with negative X (left)
+                        .withRotationalRate(-jJoystick.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
+                        ).execute();
+            }
+            else {
+                sDrivetrain.applyRequest(() ->  
+                    drive.withVelocityX((Slewer1.calculate(-jJoystick.getLeftY()) * MaxSpeed) * IDConstants.kDriveTrainMultiplier) // Drive forward with negative Y (forward)
+                        .withVelocityY((Slewer2.calculate(-jJoystick.getLeftX()) * MaxSpeed) * IDConstants.kDriveTrainMultiplier) // Drive left with negative X (left)
+                        .withRotationalRate(-jJoystick.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
+                        ).execute();
+            }
+        }
+
+        public static double calculateFieldX(CommandXboxController controller) {
+
+            double gyro = Math.toRadians(sDrivetrain.getPigeon2().getYaw().getValueAsDouble());
+            SmartDashboard.putNumber("gyro", gyro);
+            double cos = Math.cos(gyro);
+            SmartDashboard.putNumber("Cos", cos);
+            double sin = Math.sin(gyro);
+            SmartDashboard.putNumber("Sin", sin);
+
+            double tX = -controller.getLeftY(); // The X in FRC means forwards and backwards
+            double tY = -controller.getLeftX();
+
+            double fieldX = ((tX * cos) + (tY * sin));
+
+            return fieldX;
+        }
+
+        public static double calculateFieldY(CommandXboxController controller) {
+
+            double gyro = Math.toRadians(sDrivetrain.getPigeon2().getYaw().getValueAsDouble());
+            double cos = Math.cos(gyro);
+            double sin = Math.sin(gyro);
+
+            double tX = -controller.getLeftY(); // The X in FRC means forwards and backwards
+            double tY = -controller.getLeftX();
+
+            double fieldY = ((tY  * cos) - (tX * sin));
+            
+            SmartDashboard.putNumber("fieldY", fieldY);
+
+            return fieldY;
+        }
+
+
+        //** Controls the drivetrain while in creep mode with visionDrive deciding if it should auto-orientate on the apriltag */
+        public static void driveControllerCreep() {
+            
+            if(visionDrive) {
+                sDrivetrain.applyRequest(() ->
+                drive.withVelocityX(-((jJoystick.getLeftY() * MaxSpeed) * IDConstants.kDriveTrainCreep) - 0.1) // Drive forward with negative Y (forward)
+                    .withVelocityY(sVision.getMoveVision(currentVisionPos)) // Drive left with negative X (left)
+                    .withRotationalRate((-jJoystick.getRightX() * MaxAngularRate) * IDConstants.kDriveTrainCreep * 3)).execute(); // Drive counterclockwise with negative X (left)
+            }
+            else {
+                sDrivetrain.applyRequest(() ->
+                drive.withVelocityX(-(-jJoystick.getLeftY() * MaxSpeed) * IDConstants.kDriveTrainCreep) // Drive forward with negative Y (forward)
+                    .withVelocityY(-(-jJoystick.getLeftX() * MaxSpeed) * IDConstants.kDriveTrainCreep) // Drive left with negative X (left)
+                    .withRotationalRate((-jJoystick.getRightX() * MaxAngularRate) * IDConstants.kDriveTrainCreep * 3)).execute(); // Drive counterclockwise with negative X (left)
+            }
+        }
+        
+
+
+        public void setSwitchablePow(Boolean state) {
+            powerBoard.setSwitchableChannel(state);
+            SmartDashboard.putBoolean("powerBoardSwitch", !powerBoard.getSwitchableChannel());
+        }
+
+        public static void reverseSwitchPowerBoard() {
+            powerBoard.setSwitchableChannel(!powerBoard.getSwitchableChannel());
+            SmartDashboard.putBoolean("powerBoardSwitch", !powerBoard.getSwitchableChannel());
         }
         
     
         public Command getAutonomousCommand() {
             return pathPlannerDrive.getAutonomousCommand();
         }
+        
         
 
     

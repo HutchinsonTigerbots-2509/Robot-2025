@@ -13,13 +13,31 @@
         {
           "type": "named",
           "data": {
+            "name": "MoveVisionRight 3.0"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "High 3.0"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.5
           }
         },
         {
           "type": "named",
           "data": {
             "name": "Intake Out 1.0"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Floor 3.0"
           }
         }
       ]
