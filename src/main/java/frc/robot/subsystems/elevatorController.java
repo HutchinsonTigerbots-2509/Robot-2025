@@ -13,7 +13,7 @@ import frc.robot.subsystems.elevator;
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class elevatorController extends PIDCommand {
-  static final double kP = 0.003;
+  static final double kP = 0.002;
   // 0.04 before
   static final double kI = 0.001;
   // .003 before
@@ -32,6 +32,8 @@ public class elevatorController extends PIDCommand {
           // Use the output here
           sElevator.liftSet(output);
         });
+
+        
 
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(sElevator);

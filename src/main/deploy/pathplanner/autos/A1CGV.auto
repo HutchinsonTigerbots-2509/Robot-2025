@@ -7,25 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "MM1"
+            "pathName": "ACGM1"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "MoveVisionAngleRight 3.0"
+            "name": "MoveVisionAngleLeft 2.5"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "High 3.0"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.5
+            "name": "High 2.0"
           }
         },
         {
@@ -35,21 +29,21 @@
           }
         },
         {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.25
-          }
-        },
-        {
           "type": "named",
           "data": {
             "name": "Floor 3.0"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "ACGM2"
           }
         }
       ]
     }
   },
   "resetOdom": false,
-  "folder": "Middle Autos",
+  "folder": "Audience Autos",
   "choreoAuto": false
 }

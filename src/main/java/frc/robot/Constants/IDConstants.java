@@ -23,8 +23,8 @@ public class IDConstants {
 
     // April Tag PosesOnScreen for different drops
     public static final double kAprilFeederStation = 0;
-    public static final double kAprilRightPole = .6;
-    public static final double kAprilLeftPole = -.6;
+    public static final double kAprilRightPole = -.6;
+    public static final double kAprilLeftPole = .55;
 
     //     *****     JOYSTICKS     *****     //
 

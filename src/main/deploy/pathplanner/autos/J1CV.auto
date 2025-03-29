@@ -7,37 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "MM1"
+            "pathName": "JM2"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "MoveVisionAngleRight 3.0"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "High 3.0"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.5
+            "name": "MoveVisionAngleLeft 2.5"
           }
         },
         {
           "type": "named",
           "data": {
             "name": "Intake Out 1.0"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.25
           }
         },
         {
@@ -50,6 +32,6 @@
     }
   },
   "resetOdom": false,
-  "folder": "Middle Autos",
+  "folder": "Judge Autos",
   "choreoAuto": false
 }

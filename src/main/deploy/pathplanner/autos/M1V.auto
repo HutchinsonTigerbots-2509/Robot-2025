@@ -13,31 +13,19 @@
         {
           "type": "named",
           "data": {
-            "name": "MoveVisionAngleRight 3.0"
+            "name": "MoveVisionAngleLeft 2.5"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "High 3.0"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.5
+            "name": "High 2.0"
           }
         },
         {
           "type": "named",
           "data": {
             "name": "Intake Out 1.0"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.25
           }
         },
         {

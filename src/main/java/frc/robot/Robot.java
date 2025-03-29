@@ -12,9 +12,12 @@ import org.photonvision.proto.Photon;
 import frc.robot.Constants.IDConstants;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.pathPlannerDrive;
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
@@ -27,14 +30,19 @@ public class Robot extends TimedRobot {
   public Robot() {
     //** Subsystems */
     m_robotContainer = new RobotContainer();
-    m_robotContainer.getDrivetrain();
+    //m_robotContainer.getDrivetrain();
 
     //m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    //m_robotContainer.getPathPlannerDrive().ApplyStart();
   }
 
   @Override
   public void robotPeriodic() {
-    CommandScheduler.getInstance().run(); 
+    CommandScheduler.getInstance().run();
+    //TODO look at the numbers for Drivestation compared to the actual FMS because they are different
+    SmartDashboard.putNumber("Time", DriverStation.getMatchTime());
+    SmartDashboard.updateValues();
+    //m_robotContainer.getPathPlannerDrive().ApplyStart();
   }
 
   @Override
@@ -48,6 +56,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
+    //m_robotContainer.getPathPlannerDrive().ApplyStart();
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();

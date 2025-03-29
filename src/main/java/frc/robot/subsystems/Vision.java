@@ -37,7 +37,8 @@ public class vision extends SubsystemBase {
   DriveSubsystem sDrivetrain;
 
   public static PhotonCamera camera1 = new PhotonCamera(IDConstants.kCamera1);
-  public static PhotonCamera camera2 = new PhotonCamera(IDConstants.kCamera2);
+  //public static PhotonCamera camera2 = new PhotonCamera(IDConstants.kCamera2);
+  //public static PhotonCamera camera3 = new PhotonCamera(IDConstants.kCamera3);
   public static boolean targetVisible = false;
 
   public static Pose2d aPose2d;
@@ -49,13 +50,14 @@ public class vision extends SubsystemBase {
   public static double trueDistance = 0.0;
   public static double posOnScreen = 0;
   public static double posOnScreenOffset = IDConstants.kCamera1Res / 2;
+  
+  public static double aprilParallax = .2;
   public static PIDController visionDrivePID;
-  public static double kP = 1.5;
+  public static double kP = 2;
   public static double kI = 0.5;
   public static double kD = 0;
   
   public static List<PhotonPipelineResult> resultCam1;
-  public static List<PhotonPipelineResult> resultCam2;
   public static PhotonPipelineResult result;
   public static PhotonTrackedTarget target;
   public static PhotonTrackedTarget defaultTarget;
@@ -70,9 +72,9 @@ public class vision extends SubsystemBase {
       kP, 
       kI, 
       kD);
-    visionDrivePID.setTolerance(.01);
-    camera1.setDriverMode(false);
-    camera2.setDriverMode(false);
+    visionDrivePID.setTolerance(.005);
+    //camera1.setDriverMode(false);
+    //camera2.setDriverMode(false);
   }
 
   @Override
@@ -82,6 +84,9 @@ public class vision extends SubsystemBase {
     SmartDashboard.putNumber("Screen", getTagPosOnScreen());
     SmartDashboard.putNumber("tag Angle", fetchTagAngle());
     SmartDashboard.putBoolean("SeeTag", getSeeTag());
+    SmartDashboard.putNumber("AprilNum", getTargetNumber());
+    SmartDashboard.putNumber("AprilAngle", getVisionAngle());
+    SmartDashboard.putNumber("AprilHeight", getTagHighScreen());
     SmartDashboard.updateValues();
   }
 
@@ -91,27 +96,15 @@ public class vision extends SubsystemBase {
   public void gainResults() {
 
     resultCam1 = camera1.getAllUnreadResults();
-    resultCam2 = camera2.getAllUnreadResults();
 
-
-    if (!resultCam1.isEmpty() || !resultCam2.isEmpty()) {
-      targetVisible = true;
-      if (!resultCam1.isEmpty()) {
-        result = resultCam1.get(resultCam1.size() - 1);
-        if (result.hasTargets()) {
-          target = result.getBestTarget();
-        }
+    if (!resultCam1.isEmpty()) {
+      result = resultCam1.get(resultCam1.size() - 1);
+      if (result.hasTargets()) {
+        target = result.getBestTarget();
       }
-
-      else if (!resultCam2.isEmpty() && resultCam1.isEmpty()) {
-        result = resultCam2.get(resultCam2.size() - 1);
-        if (result.hasTargets()) {   
-          target = result.getBestTarget();
-        }
-      }
-    }
+    } 
     else {
-      targetVisible = false;
+      resultCam1.clear();
     }
   }
 
@@ -207,6 +200,18 @@ public class vision extends SubsystemBase {
     return pos;
   }
 
+
+
+  public static double getTagHighScreen() {
+
+    double pitch = target.getPitch();
+
+
+    double pos = (pitch + 14) / 28;  // camera returned pitch of -14 - 14
+
+    return pos;
+  }
+
   public Pose2d getPose2d() {
     Pose2d pos;
     pos = new Pose2d(0, 0, null);
@@ -217,12 +222,47 @@ public class vision extends SubsystemBase {
     SmartDashboard.putNumber("visionDriveSpeed", visionDrivePID.calculate(getTagPosOnScreen(), desiredPos));
     if (visionDrivePID.atSetpoint())
       return 0;
-    return -visionDrivePID.calculate(getTagPosOnScreen(), desiredPos);
+    return -visionDrivePID.calculate(getTagPosOnScreen(), desiredPos + calculateParallax());
+  }
+
+  public double calculateParallax() {
+    return (aprilParallax * getTagHighScreen());
   }
 
   public void setCameraDriveMode(Boolean mode) {
     camera1.setDriverMode(mode);
-    camera2.setDriverMode(mode);
+    //camera2.setDriverMode(mode);
+  }
+
+  public int getTargetNumber() {
+    return target.getFiducialId();
+  }
+
+  public double getVisionAngle() {
+    int tNum = getTargetNumber();
+    double dAngle;
+    if (tNum == 11 || tNum == 20) {
+      dAngle = 60;
+    }
+    else if (tNum == 10 || tNum == 21) {
+      dAngle = 0;
+    }
+    else if (tNum == 9 || tNum == 22) {
+      dAngle = -60;
+    }
+    else if (tNum == 8 || tNum == 17) {
+      dAngle = -120;
+    }
+    else if (tNum == 7 || tNum == 18) {
+      dAngle = 180;
+    }
+    else if (tNum == 6 || tNum == 19) {
+      dAngle = 120;
+    }
+    else {
+      dAngle = 0;
+    }
+    return dAngle;
   }
 
 }

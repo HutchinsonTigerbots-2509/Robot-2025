@@ -28,8 +28,8 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.IDConstants;
 import frc.robot.Constants.SwerveConstants;
+import frc.robot.Constants.ControllerMapping;
 import frc.robot.subsystems.*;
-import frc.robot.Dashboard;
 
 
 
@@ -59,13 +59,13 @@ public class RobotContainer {
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
     
         /* Setting up bindings for necessary control of the swerve drive platform */
-    
-        public static Field2d field = new Field2d();
+
+        public static double fieldOffset = 0;
 
         public static boolean visionDriveMode = false;
-        public static boolean visionDrive = true;
+        public static boolean visionDrive = false;
         public static boolean fieldOriented = true;
-        public static double currentVisionPos = 0;
+        public static double currentVisionPos = IDConstants.kAprilLeftPole;
 
         public static PIDController drivePID = new PIDController(
             IDConstants.kDriveP, 
@@ -78,11 +78,6 @@ public class RobotContainer {
 
         
     
-    
-    
-    
-    
-        //TODO: change .RobotCentric to .FieldCentric for field oriented.... // <---------- 🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨
     
     
     
@@ -108,14 +103,10 @@ public class RobotContainer {
         public static final elevator sElevator = new elevator();
         public static final intake sIntake = new intake();
         public static final kicker sKicker = new kicker();
+        public static final elastic sElastic = new elastic();
         public static final pathPlannerDrive sPathPlannerDrive = new pathPlannerDrive(sClimber, sDrivetrain, sElevator, sIntake, sKicker, sVision);
     
-        public final Dashboard dashboard = new Dashboard();
-    
-    
-        // 🚨🚨🚨🚨🚨🚨🚨🚨🚨    *****     START DEFAULT COMMANDS     *****     //🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
-    
+      
     
     
         public RobotContainer() {
@@ -126,7 +117,7 @@ public class RobotContainer {
     
         private void configureBindings() {
     
-            // 🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨    *****     END DEFAULT COMMANDS     *****     //🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨
+            // 🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨    *****     Objects     *****     //🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
             RunCommand normDrive = new RunCommand(() -> driveController());
             normDrive.addRequirements(sDrivetrain);
@@ -134,48 +125,13 @@ public class RobotContainer {
             creepDrive.addRequirements(sDrivetrain);
             
     
-    
-    
-            // 🚨🚨🚨🚨🚨🚨🚨🚨    *****     START CTRE INITIALIZED DRIVETRAIN     *****     //🚨🚨🚨🚨🚨🚨🚨🚨🚨
+            // 🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨    *****     Default Commands     *****     //🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
-    
-    
-    
-            // Note that X is defined as forward according to WPILib convention,
-            // and Y is defined as to the left according to WPILib convention.
-    
-            // sDrivetrain.setDefaultCommand(
-            //     // Drivetrain will execute this command periodically
-            //     sDrivetrain.applyRequest(() ->
-            //         drive.withVelocityX(-jJoystick.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
-            //             .withVelocityY(-jJoystick.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-            //             .withRotationalRate(-jJoystick.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
-            //     )
-            // );
-            
-            // sDrivetrain.setDefaultCommand(
-            //     // Drivetrain will execute this command periodically
-            //     sDrivetrain.applyRequest(() ->  
-            //         drive.withVelocityX((Slewer1.calculate(-jJoystick.getLeftY()) * MaxSpeed) * IDConstants.kDriveTrainMultiplier) // Drive forward with negative Y (forward)
-            //             .withVelocityY((Slewer2.calculate(-jJoystick.getLeftX()) * MaxSpeed) * IDConstants.kDriveTrainMultiplier) // Drive left with negative X (left)
-            //             .withRotationalRate(-jJoystick.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
-            //             )
-            //     );
 
-            //TODO Make this run correctly with the required subsystem
             sDrivetrain.setDefaultCommand(
                 // Drivetrain will execute this command periodically
                 normDrive
                 );
-    
-            
-            // reset the field-centric heading on left bumper press
-                                                //jJoystick.leftBumper().onTrue(sDrivetrain.runOnce(() -> sDrivetrain.seedFieldCentric()));
-    
-    
-    
-            // 🚨🚨🚨🚨🚨🚨🚨    *****     END CTRE INITIALIZED DRIVETRAIN     *****      //🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
     
     
     
@@ -183,81 +139,88 @@ public class RobotContainer {
             // 🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨    *****     BUTTON BIND/MAPPING     *****     //🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
     
-            jJoystick.b().whileTrue(sDrivetrain.applyRequest(() -> brake));
-    
             JoystickButton ClimbUpBtn;
-            ClimbUpBtn = new JoystickButton(jButtonBoardPrimary, 3);
+            ClimbUpBtn = new JoystickButton(jButtonBoardSecondary, ControllerMapping.kClimb);
             ClimbUpBtn.whileTrue(new RunCommand(() -> sClimber.climbUp())).onFalse(new InstantCommand(() -> sClimber.climbStop()));
+            ClimbUpBtn.onTrue(new InstantCommand(() -> elastic.selectTab("ClimbTab")));
     
             JoystickButton ClimbDownBtn;
-            ClimbDownBtn = new JoystickButton(jButtonBoardPrimary, 4);
+            ClimbDownBtn = new JoystickButton(jButtonBoardSecondary, ControllerMapping.kClimbReverse);
             ClimbDownBtn.whileTrue(new RunCommand(() -> sClimber.climbDown())).onFalse(new InstantCommand(() -> sClimber.climbStop()));
+            ClimbDownBtn.onTrue(new InstantCommand(() -> elastic.selectTab("ClimbTab")));
     
             JoystickButton IntakeInBtn;
-            IntakeInBtn = new JoystickButton(jButtonBoardPrimary, 7);
+            IntakeInBtn = new JoystickButton(jButtonBoardPrimary, ControllerMapping.kIntakeIn);
             IntakeInBtn.whileTrue(new RunCommand(() -> sIntake.intakeIn())).onFalse(new InstantCommand(() -> sIntake.intakeStop()));
     
             JoystickButton IntakeOutBtn;
-            IntakeOutBtn = new JoystickButton(jButtonBoardPrimary, 6);
+            IntakeOutBtn = new JoystickButton(jButtonBoardPrimary, ControllerMapping.kIntakeOut);
             IntakeOutBtn.whileTrue(new RunCommand(() -> sIntake.intakeOut())).onFalse(new InstantCommand(() -> sIntake.intakeStop()));
+            IntakeOutBtn.onTrue(new InstantCommand(() -> elastic.selectTab("TeleTab")));
     
             JoystickButton IntakeLoadBtn;
-            IntakeLoadBtn = new JoystickButton(jButtonBoardPrimary, 5);
-            IntakeLoadBtn.onTrue(new RunCommand(() -> sIntake.intakeSet(.25)).withTimeout(.25).andThen(new InstantCommand(() -> sIntake.intakeStop())));
+            IntakeLoadBtn = new JoystickButton(jButtonBoardSecondary, ControllerMapping.kIntakeLoad);
+            //IntakeLoadBtn.onTrue(new RunCommand(() -> sIntake.intakeSet(.25)).withTimeout(.25).andThen(new InstantCommand(() -> sIntake.intakeStop())));
+            IntakeLoadBtn.onTrue(new RunCommand(() -> sIntake.intakeSet(.25)).until(() -> sIntake.getDistanceTripped()).andThen(new InstantCommand(() -> sIntake.intakeStop())));
     
             JoystickButton LiftUpBtn;
-            LiftUpBtn = new JoystickButton(jButtonBoardPrimary, 1);
+            LiftUpBtn = new JoystickButton(jButtonBoardSecondary, ControllerMapping.kElevatorUp);
             LiftUpBtn.whileTrue(new RunCommand(() -> sElevator.elevatorUp())).onFalse(new InstantCommand(() -> sElevator.elevatorStop()));
     
             JoystickButton LiftDownBtn;
-            LiftDownBtn = new JoystickButton(jButtonBoardPrimary, 2);
+            LiftDownBtn = new JoystickButton(jButtonBoardSecondary, ControllerMapping.kElevatorDown);
             LiftDownBtn.whileTrue(new RunCommand(() -> sElevator.elevatorDown())).onFalse(new InstantCommand(() -> sElevator.elevatorStop()));
     
     
     
             JoystickButton LiftFloorBtn;
-            LiftFloorBtn = new JoystickButton(jButtonBoardPrimary, 8);
+            LiftFloorBtn = new JoystickButton(jButtonBoardSecondary, ControllerMapping.kElevatorFloor);
             LiftFloorBtn.onTrue(new elevatorController(IDConstants.kFloorPos, sElevator).until(() -> (LiftUpBtn.getAsBoolean() || LiftDownBtn.getAsBoolean())));
     
             JoystickButton LiftBottomBtn;
-            LiftBottomBtn = new JoystickButton(jButtonBoardPrimary, 9);
+            LiftBottomBtn = new JoystickButton(jButtonBoardSecondary, ControllerMapping.kElevatorBottom);
             LiftBottomBtn.onTrue(new elevatorController(IDConstants.kBottomPos, sElevator).until(() -> (LiftUpBtn.getAsBoolean() || LiftDownBtn.getAsBoolean())));
     
             JoystickButton LiftLowBtn;
-            LiftLowBtn = new JoystickButton(jButtonBoardPrimary, 10);
+            LiftLowBtn = new JoystickButton(jButtonBoardSecondary, ControllerMapping.kElevatorLow);
             LiftLowBtn.onTrue(new elevatorController(IDConstants.kLowPos, sElevator).until(() -> (LiftUpBtn.getAsBoolean() || LiftDownBtn.getAsBoolean())));
     
             JoystickButton LiftMiddleBtn;
-            LiftMiddleBtn = new JoystickButton(jButtonBoardPrimary, 11);
+            LiftMiddleBtn = new JoystickButton(jButtonBoardSecondary, ControllerMapping.kElevatorMiddle);
             LiftMiddleBtn.onTrue(new elevatorController(IDConstants.kMiddlePos, sElevator).until(() -> (LiftUpBtn.getAsBoolean() || LiftDownBtn.getAsBoolean())));
     
             JoystickButton LiftHighBtn;
-            LiftHighBtn = new JoystickButton(jButtonBoardPrimary, 12);
+            LiftHighBtn = new JoystickButton(jButtonBoardSecondary, ControllerMapping.kElevatorHigh);
             LiftHighBtn.onTrue(new elevatorController(IDConstants.kHighPos, sElevator).until(() -> (LiftUpBtn.getAsBoolean() || LiftDownBtn.getAsBoolean())));
     
             JoystickButton ClimbBreakerButton;
-            ClimbBreakerButton = new JoystickButton(jButtonBoardSecondary, 10);
+            ClimbBreakerButton = new JoystickButton(jButtonBoardPrimary, ControllerMapping.kClimbBreaker);
             ClimbBreakerButton.onTrue(new InstantCommand(() -> reverseSwitchPowerBoard()));
+            ClimbBreakerButton.onTrue(new InstantCommand(() -> elastic.selectTab("ClimbTab")));
 
             JoystickButton KickerBtn;
-            KickerBtn = new JoystickButton(jButtonBoardSecondary, 12);
+            KickerBtn = new JoystickButton(jButtonBoardPrimary, ControllerMapping.kKickerUp);
             KickerBtn.whileTrue(new RunCommand(() -> sKicker.kickerSet(.35))).onFalse(new InstantCommand(() -> sKicker.kickerStop()));
     
             JoystickButton KickerReverseBtn;
-            KickerReverseBtn = new JoystickButton(jButtonBoardSecondary, 11);
+            KickerReverseBtn = new JoystickButton(jButtonBoardPrimary, ControllerMapping.kKickerDown);
             KickerReverseBtn.whileTrue(new RunCommand(() -> sKicker.kickerSet(-.3))).onFalse(new InstantCommand(() -> sKicker.kickerStop()));
 
     
-    
-            jJoystick.povDown().toggleOnTrue(creepDrive);
-            jJoystick.leftBumper().onTrue(new InstantCommand(() -> {visionDrive = !visionDrive; SmartDashboard.putBoolean("visionDriveOn", visionDrive);}));
-            jJoystick.rightBumper().onTrue(new InstantCommand(() -> {fieldOriented = !fieldOriented; SmartDashboard.putBoolean("fieldOriented", fieldOriented);}));
-            jJoystick.y().onTrue(new InstantCommand(() -> sPathPlannerDrive.setGyro(0.0)));
-            jJoystick.a().onTrue(new InstantCommand(() -> {visionDriveMode = !visionDriveMode; sVision.setCameraDriveMode(visionDriveMode);}));
+            
+            jJoystick.b().whileTrue(sDrivetrain.applyRequest(() -> brake));
+            //TODO make this actually fix both field2d and gyro
+            jJoystick.y().onTrue(new InstantCommand(() -> fieldOffset = 0 - pathPlannerDrive.getField2d().getRobotPose().getRotation().getDegrees()));
 
-            jJoystick.povLeft().onTrue(new InstantCommand(() -> currentVisionPos = IDConstants.kAprilLeftPole));
-            jJoystick.povRight().onTrue(new InstantCommand(() -> currentVisionPos = IDConstants.kAprilRightPole));
-            jJoystick.povUp().onTrue(new InstantCommand(() -> currentVisionPos = IDConstants.kAprilFeederStation));
+
+            jJoystick.a().onTrue(new InstantCommand(() -> {visionDrive = !visionDrive; //sVision.setCameraDriveMode(visionDriveMode);
+                SmartDashboard.putBoolean("VisionMode", visionDrive);}));
+
+            // jJoystick.povLeft().onTrue(new InstantCommand(() -> currentVisionPos = IDConstants.kAprilLeftPole));
+            // jJoystick.povRight().onTrue(new InstantCommand(() -> currentVisionPos = IDConstants.kAprilRightPole));
+            // jJoystick.povUp().onTrue(new InstantCommand(() -> currentVisionPos = IDConstants.kAprilFeederStation));
+            jJoystick.rightBumper().toggleOnTrue(creepDrive);
+            jJoystick.rightBumper().onTrue(new InstantCommand(() -> elastic.selectTab("CreepTab")));
 
         }
     
@@ -269,11 +232,10 @@ public class RobotContainer {
             if (DriverStation.isAutonomous()) {
             sDrivetrain.applyRequest(() -> 
             drive.withVelocityX(x).withVelocityY(y).withRotationalRate(z)).execute();
-            SmartDashboard.putNumber("txS", drive.VelocityX);
-            SmartDashboard.putNumber("tyS", drive.VelocityY);
-            SmartDashboard.putNumber("tzS", drive.RotationalRate);
-            SmartDashboard.putBoolean("HandDriveDefault", false);
-            SmartDashboard.updateValues();
+            // SmartDashboard.putNumber("txS", drive.VelocityX);
+            // SmartDashboard.putNumber("tyS", drive.VelocityY);
+            // SmartDashboard.putNumber("tzS", drive.RotationalRate);
+            //SmartDashboard.putBoolean("HandDriveDefault", false);
             }
         }
 
@@ -297,12 +259,12 @@ public class RobotContainer {
 
         public static double calculateFieldX(CommandXboxController controller) {
 
-            double gyro = Math.toRadians(sDrivetrain.getPigeon2().getYaw().getValueAsDouble());
-            SmartDashboard.putNumber("gyro", gyro);
+            double gyro = Math.toRadians(sDrivetrain.getPigeon2().getYaw().getValueAsDouble() + fieldOffset);
+            //SmartDashboard.putNumber("gyro", gyro);
             double cos = Math.cos(gyro);
-            SmartDashboard.putNumber("Cos", cos);
+            //SmartDashboard.putNumber("Cos", cos);
             double sin = Math.sin(gyro);
-            SmartDashboard.putNumber("Sin", sin);
+            //SmartDashboard.putNumber("Sin", sin);
 
             double tX = -controller.getLeftY(); // The X in FRC means forwards and backwards
             double tY = -controller.getLeftX();
@@ -314,7 +276,7 @@ public class RobotContainer {
 
         public static double calculateFieldY(CommandXboxController controller) {
 
-            double gyro = Math.toRadians(sDrivetrain.getPigeon2().getYaw().getValueAsDouble());
+            double gyro = Math.toRadians(sDrivetrain.getPigeon2().getYaw().getValueAsDouble() + fieldOffset);
             double cos = Math.cos(gyro);
             double sin = Math.sin(gyro);
 
@@ -323,7 +285,7 @@ public class RobotContainer {
 
             double fieldY = ((tY  * cos) - (tX * sin));
             
-            SmartDashboard.putNumber("fieldY", fieldY);
+            //SmartDashboard.putNumber("fieldY", fieldY);
 
             return fieldY;
         }
@@ -334,14 +296,14 @@ public class RobotContainer {
             
             if(visionDrive) {
                 sDrivetrain.applyRequest(() ->
-                drive.withVelocityX(-((jJoystick.getLeftY() * MaxSpeed) * IDConstants.kDriveTrainCreep) - 0.1) // Drive forward with negative Y (forward)
+                drive.withVelocityX(-((jJoystick.getLeftY() * MaxSpeed) * IDConstants.kDriveTrainCreep) - 0.3) // Drive forward with negative Y (forward)
                     .withVelocityY(sVision.getMoveVision(currentVisionPos)) // Drive left with negative X (left)
                     .withRotationalRate((-jJoystick.getRightX() * MaxAngularRate) * IDConstants.kDriveTrainCreep * 3)).execute(); // Drive counterclockwise with negative X (left)
             }
             else {
                 sDrivetrain.applyRequest(() ->
-                drive.withVelocityX(-(-jJoystick.getLeftY() * MaxSpeed) * IDConstants.kDriveTrainCreep) // Drive forward with negative Y (forward)
-                    .withVelocityY(-(-jJoystick.getLeftX() * MaxSpeed) * IDConstants.kDriveTrainCreep) // Drive left with negative X (left)
+                drive.withVelocityX((jJoystick.getLeftY() * MaxSpeed) * IDConstants.kDriveTrainCreep - 0.3) // Drive forward with negative Y (forward)
+                    .withVelocityY((jJoystick.getLeftX() * MaxSpeed) * IDConstants.kDriveTrainCreep) // Drive left with negative X (left)
                     .withRotationalRate((-jJoystick.getRightX() * MaxAngularRate) * IDConstants.kDriveTrainCreep * 3)).execute(); // Drive counterclockwise with negative X (left)
             }
         }

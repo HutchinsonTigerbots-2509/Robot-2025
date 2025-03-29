@@ -35,11 +35,12 @@ public class elevator extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    SmartDashboard.putNumber("ElevatorPos", getPos());
+    //SmartDashboard.putNumber("ElevatorPos", getPos());
     SmartDashboard.putBoolean("LimitSwitch", !wBottomElevator.get());
     if (!wBottomElevator.get()) {
       liftEncoder.reset();
     }
+    SmartDashboard.updateValues();
   }
 
   public void elevatorUp() {

@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.IDConstants;
 
@@ -12,11 +13,13 @@ public class kicker extends SubsystemBase {
   TalonSRX mKicker = new TalonSRX(IDConstants.kKickerID);
 
 
-  public kicker() {}
+  public kicker() {
+  }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    SmartDashboard.updateValues();
   }
 
   public void kickerSet(double speed) {
