@@ -162,6 +162,7 @@ public class RobotContainer {
             IntakeLoadBtn = new JoystickButton(jButtonBoardSecondary, ControllerMapping.kIntakeLoad);
             //IntakeLoadBtn.onTrue(new RunCommand(() -> sIntake.intakeSet(.25)).withTimeout(.25).andThen(new InstantCommand(() -> sIntake.intakeStop())));
             IntakeLoadBtn.onTrue(new RunCommand(() -> sIntake.intakeSet(.25)).until(() -> sIntake.getDistanceTripped()).andThen(new InstantCommand(() -> sIntake.intakeStop())));
+            IntakeLoadBtn.onTrue(new InstantCommand(() -> elastic.selectTab("TeleTab")));
     
             JoystickButton LiftUpBtn;
             LiftUpBtn = new JoystickButton(jButtonBoardSecondary, ControllerMapping.kElevatorUp);
@@ -206,21 +207,31 @@ public class RobotContainer {
             KickerReverseBtn = new JoystickButton(jButtonBoardPrimary, ControllerMapping.kKickerDown);
             KickerReverseBtn.whileTrue(new RunCommand(() -> sKicker.kickerSet(-.3))).onFalse(new InstantCommand(() -> sKicker.kickerStop()));
 
+            JoystickButton cameraBtn;
+            cameraBtn = new JoystickButton(jButtonBoardPrimary, ControllerMapping.kCameraSwap);
+            cameraBtn.onTrue(new InstantCommand(() -> elastic.selectTab("CreepTab")));
+
+            JoystickButton allignLeftBtn;
+            allignLeftBtn = new JoystickButton(jButtonBoardPrimary, ControllerMapping.kAutoLeft);
+            allignLeftBtn.whileTrue(new RunCommand(() -> driveVision(IDConstants.kAprilLeftPole)));
+
+            JoystickButton allignRightBtn;
+            allignRightBtn = new JoystickButton(jButtonBoardPrimary, ControllerMapping.kAutoRight);
+            allignRightBtn.whileTrue(new RunCommand(() -> driveVision(IDConstants.kAprilRightPole)));
+
     
             
             jJoystick.b().whileTrue(sDrivetrain.applyRequest(() -> brake));
-            //TODO make this actually fix both field2d and gyro
             jJoystick.y().onTrue(new InstantCommand(() -> fieldOffset = 0 - pathPlannerDrive.getField2d().getRobotPose().getRotation().getDegrees()));
 
 
             jJoystick.a().onTrue(new InstantCommand(() -> {visionDrive = !visionDrive; //sVision.setCameraDriveMode(visionDriveMode);
                 SmartDashboard.putBoolean("VisionMode", visionDrive);}));
-
-            // jJoystick.povLeft().onTrue(new InstantCommand(() -> currentVisionPos = IDConstants.kAprilLeftPole));
-            // jJoystick.povRight().onTrue(new InstantCommand(() -> currentVisionPos = IDConstants.kAprilRightPole));
-            // jJoystick.povUp().onTrue(new InstantCommand(() -> currentVisionPos = IDConstants.kAprilFeederStation));
             jJoystick.rightBumper().toggleOnTrue(creepDrive);
             jJoystick.rightBumper().onTrue(new InstantCommand(() -> elastic.selectTab("CreepTab")));
+            
+            jJoystick.povRight().onTrue(new RunCommand(() -> driveNudge(.5)).withTimeout(.25));
+            jJoystick.povLeft().onTrue(new RunCommand(() -> driveNudge(-.5)).withTimeout(.25));
 
         }
     
@@ -241,20 +252,20 @@ public class RobotContainer {
 
         //** Function that is set as default command for sDrivetrain with fieldOriented changing it on and off */
         public static void driveController() {
-            if(fieldOriented) {
+            // if(fieldOriented) {
                 sDrivetrain.applyRequest(() ->  
                     drive.withVelocityX((Slewer1.calculate(calculateFieldX(jJoystick)) * MaxSpeed) * IDConstants.kDriveTrainMultiplier) // Drive forward with negative Y (forward)
                         .withVelocityY((Slewer2.calculate(calculateFieldY(jJoystick)) * MaxSpeed) * IDConstants.kDriveTrainMultiplier) // Drive left with negative X (left)
                         .withRotationalRate(-jJoystick.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
                         ).execute();
-            }
-            else {
-                sDrivetrain.applyRequest(() ->  
-                    drive.withVelocityX((Slewer1.calculate(-jJoystick.getLeftY()) * MaxSpeed) * IDConstants.kDriveTrainMultiplier) // Drive forward with negative Y (forward)
-                        .withVelocityY((Slewer2.calculate(-jJoystick.getLeftX()) * MaxSpeed) * IDConstants.kDriveTrainMultiplier) // Drive left with negative X (left)
-                        .withRotationalRate(-jJoystick.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
-                        ).execute();
-            }
+            // }
+            // else {
+                // sDrivetrain.applyRequest(() ->  
+                //     drive.withVelocityX((Slewer1.calculate(-jJoystick.getLeftY()) * MaxSpeed) * IDConstants.kDriveTrainMultiplier) // Drive forward with negative Y (forward)
+                //         .withVelocityY((Slewer2.calculate(-jJoystick.getLeftX()) * MaxSpeed) * IDConstants.kDriveTrainMultiplier) // Drive left with negative X (left)
+                //         .withRotationalRate(-jJoystick.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
+                //         ).execute();
+            //}
         }
 
         public static double calculateFieldX(CommandXboxController controller) {
@@ -294,18 +305,50 @@ public class RobotContainer {
         //** Controls the drivetrain while in creep mode with visionDrive deciding if it should auto-orientate on the apriltag */
         public static void driveControllerCreep() {
             
-            if(visionDrive) {
+            // if(visionDrive) {
+            //     sDrivetrain.applyRequest(() ->
+            //     drive.withVelocityX(-((jJoystick.getLeftY() * MaxSpeed) * IDConstants.kDriveTrainCreep) - 0.3) // Drive forward with negative Y (forward)
+            //         .withVelocityY(sVision.getMoveVision(currentVisionPos)) // Drive left with negative X (left)
+            //         .withRotationalRate((-jJoystick.getRightX() * MaxAngularRate) * IDConstants.kDriveTrainCreep * 3)).execute(); // Drive counterclockwise with negative X (left)
+            // }
+            // else {
                 sDrivetrain.applyRequest(() ->
-                drive.withVelocityX(-((jJoystick.getLeftY() * MaxSpeed) * IDConstants.kDriveTrainCreep) - 0.3) // Drive forward with negative Y (forward)
-                    .withVelocityY(sVision.getMoveVision(currentVisionPos)) // Drive left with negative X (left)
-                    .withRotationalRate((-jJoystick.getRightX() * MaxAngularRate) * IDConstants.kDriveTrainCreep * 3)).execute(); // Drive counterclockwise with negative X (left)
-            }
-            else {
-                sDrivetrain.applyRequest(() ->
-                drive.withVelocityX((jJoystick.getLeftY() * MaxSpeed) * IDConstants.kDriveTrainCreep - 0.3) // Drive forward with negative Y (forward)
+                drive.withVelocityX((jJoystick.getLeftY() * MaxSpeed) * IDConstants.kDriveTrainCreep - 0.2) // Drive forward with negative Y (forward)
                     .withVelocityY((jJoystick.getLeftX() * MaxSpeed) * IDConstants.kDriveTrainCreep) // Drive left with negative X (left)
                     .withRotationalRate((-jJoystick.getRightX() * MaxAngularRate) * IDConstants.kDriveTrainCreep * 3)).execute(); // Drive counterclockwise with negative X (left)
-            }
+            //}
+        }
+
+        public static void driveVision(double camPos) {
+            
+            // if(visionDrive) {
+            //     sDrivetrain.applyRequest(() ->
+            //     drive.withVelocityX(-((jJoystick.getLeftY() * MaxSpeed) * IDConstants.kDriveTrainCreep) - 0.3) // Drive forward with negative Y (forward)
+            //         .withVelocityY(sVision.getMoveVision(currentVisionPos)) // Drive left with negative X (left)
+            //         .withRotationalRate((-jJoystick.getRightX() * MaxAngularRate) * IDConstants.kDriveTrainCreep * 3)).execute(); // Drive counterclockwise with negative X (left)
+            // }
+            // else {
+                sDrivetrain.applyRequest(() ->
+                drive.withVelocityX((jJoystick.getLeftY() * MaxSpeed) * IDConstants.kDriveTrainCreep - 0.2) // Drive forward with negative Y (forward)
+                    .withVelocityY(sVision.getMoveVision(camPos)) // Drive left with negative X (left)
+                    .withRotationalRate((-jJoystick.getRightX() * MaxAngularRate) * IDConstants.kDriveTrainCreep * 3)).execute(); // Drive counterclockwise with negative X (left)
+            //}
+        }
+
+        public static void driveNudge(double speed) {
+            
+            // if(visionDrive) {
+            //     sDrivetrain.applyRequest(() ->
+            //     drive.withVelocityX(-((jJoystick.getLeftY() * MaxSpeed) * IDConstants.kDriveTrainCreep) - 0.3) // Drive forward with negative Y (forward)
+            //         .withVelocityY(sVision.getMoveVision(currentVisionPos)) // Drive left with negative X (left)
+            //         .withRotationalRate((-jJoystick.getRightX() * MaxAngularRate) * IDConstants.kDriveTrainCreep * 3)).execute(); // Drive counterclockwise with negative X (left)
+            // }
+            // else {
+                sDrivetrain.applyRequest(() ->
+                drive.withVelocityX(0) // Drive forward with negative Y (forward)
+                    .withVelocityY(speed) // Drive left with negative X (left)
+                    .withRotationalRate(0)).execute(); // Drive counterclockwise with negative X (left)
+            //}
         }
         
 

@@ -5,12 +5,14 @@
   "pathFolders": [
     "Audience1",
     "Audience1 Close",
+    "Audience1 Close Grab",
     "Audience2",
     "Judge1",
     "Judge1 Close",
+    "Judge1 Close Grab",
     "Judge2",
     "Middle1",
-    "Audience1 Close Grab"
+    "Judge1 Grab"
   ],
   "autoFolders": [
     "Audience Autos",

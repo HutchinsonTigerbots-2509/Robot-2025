@@ -8,20 +8,20 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.010250000000001,
-        "y": 7.281499999999999
+        "x": 6.435,
+        "y": 7.07675
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 5.2,
+        "x": 3.85,
         "y": 5.15
       },
       "prevControl": {
-        "x": 5.51,
-        "y": 5.63375
+        "x": 3.7745000000000006,
+        "y": 5.693500000000004
       },
       "nextControl": null,
       "isLocked": false,
@@ -30,8 +30,8 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.6686614173228329,
-      "rotationDegrees": 59.99999999999999
+      "waypointRelativePos": 0.4507086614173189,
+      "rotationDegrees": 119.99999999999999
     }
   ],
   "constraintZones": [],
@@ -47,10 +47,10 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 59.99999999999999
+    "rotation": 119.99999999999999
   },
   "reversed": false,
-  "folder": "Judge1 Close",
+  "folder": "Judge1 Grab",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 90.0

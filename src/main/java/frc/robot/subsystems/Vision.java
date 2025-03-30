@@ -53,7 +53,7 @@ public class vision extends SubsystemBase {
   
   public static double aprilParallax = .2;
   public static PIDController visionDrivePID;
-  public static double kP = 2;
+  public static double kP = 1.5;
   public static double kI = 0.5;
   public static double kD = 0;
   

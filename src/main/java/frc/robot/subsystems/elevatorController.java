@@ -13,9 +13,9 @@ import frc.robot.subsystems.elevator;
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class elevatorController extends PIDCommand {
-  static final double kP = 0.002;
+  static final double kP = 0.005;
   // 0.04 before
-  static final double kI = 0.001;
+  static final double kI = 0.0025;
   // .003 before
   static final double kD = 0.00;
   /** Creates a new Shoulder. */

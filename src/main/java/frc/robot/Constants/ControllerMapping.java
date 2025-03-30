@@ -37,6 +37,8 @@ public class ControllerMapping {
     public static int kIntakeIn = 5;
     public static int kIntakeOut = 6;
 
+    public static int kCameraSwap = 9;
+
     // Co Pilot Secondary
 
     public static int kIntakeLoad = 3;

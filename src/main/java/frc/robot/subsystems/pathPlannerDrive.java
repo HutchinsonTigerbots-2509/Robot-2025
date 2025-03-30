@@ -127,11 +127,13 @@ public class pathPlannerDrive extends SubsystemBase {
              // TODO Auto-generated catch block
              e.printStackTrace();
            }
+
+       SmartDashboard.putData(autoSelect);
    
-       
        buildAutoChooser();
    
        SmartDashboard.putData(autoSelect);
+
        SmartDashboard.putBoolean("ApplyStart", true);
       
        //ApplyStart();
@@ -331,6 +333,8 @@ public class pathPlannerDrive extends SubsystemBase {
             NamedCommands.registerCommand("Lift Up " + n, new RunCommand(() -> sElevator.elevatorUp()).withTimeout(n).andThen(new InstantCommand(() -> sElevator.elevatorStop())));
             NamedCommands.registerCommand("Lift Down " + n, new RunCommand(() -> sElevator.elevatorDown()).withTimeout(n).andThen(new InstantCommand(() -> sElevator.elevatorStop())));
 
+            NamedCommands.registerCommand("CreepForward " + n, new RunCommand(() -> driveChassis(new ChassisSpeeds(.2, 0, 0))).withTimeout(n));
+           
         // Vision Positions
 
             NamedCommands.registerCommand("VisionR " + n, new RunCommand(() -> driveChassis(new ChassisSpeeds(-.5, sVision.getMoveVision(IDConstants.kAprilRightPole),0))).withTimeout(n));
@@ -345,14 +349,26 @@ public class pathPlannerDrive extends SubsystemBase {
 
             NamedCommands.registerCommand("MoveVisionAngleLeft " + (n), fixMoveAuto(IDConstants.kAprilLeftPole, true, n));
             NamedCommands.registerCommand("MoveVisionAngleRight " + (n), fixMoveAuto(IDConstants.kAprilRightPole, true, n));
+
+            NamedCommands.registerCommand("MoveVisionAngleLeftQuick " + (n), fixMoveAutoQuick(IDConstants.kAprilLeftPole, n));
+            NamedCommands.registerCommand("MoveVisionAngleRightQuick " + (n), fixMoveAutoQuick(IDConstants.kAprilRightPole, n));
     
             NamedCommands.registerCommand("Floor " + n, new elevatorController(IDConstants.kFloorPos, sElevator).withTimeout(n));
             NamedCommands.registerCommand("Bottom " + n, new elevatorController(IDConstants.kBottomPos, sElevator).withTimeout(n));
             NamedCommands.registerCommand("Low " + n, new elevatorController(IDConstants.kLowPos, sElevator).withTimeout(n));
             NamedCommands.registerCommand("Middle " + n, new elevatorController(IDConstants.kMiddlePos, sElevator).withTimeout(n));
             NamedCommands.registerCommand("High " + n, new elevatorController(IDConstants.kHighPos, sElevator).withTimeout(n));
+
             
         }
+
+        NamedCommands.registerCommand("Load", new RunCommand(() -> sIntake.intakeSet(.25)).until(() -> sIntake.getDistanceTripped()));
+        NamedCommands.registerCommand("LoadCreep", new RunCommand(() -> sIntake.intakeSet(.3)).until(() -> sIntake.getDistanceTripped()).alongWith(new RunCommand(() -> driveChassis(new ChassisSpeeds(.75, 0, 0)))).until(() -> sIntake.getDistanceTripped()));
+        NamedCommands.registerCommand("BackUpIntake", new RunCommand(() -> sIntake.intakeSet(-.25)).withTimeout(.3));
+        NamedCommands.registerCommand("ResetAudiencePose", new InstantCommand(() -> resetPos2d(new Pose2d(5, 2.9, getRotation2d()))));
+        NamedCommands.registerCommand("ResetJudgePose", new InstantCommand(() -> resetPos2d(new Pose2d(5.2, 5.15, getRotation2d()))));
+        NamedCommands.registerCommand("ResetAudienceFeederPose", new InstantCommand(() -> resetPos2d(new Pose2d(1, 1, getRotation2d()))));
+        NamedCommands.registerCommand("ResetJudgeFeederPose", new InstantCommand(() -> resetPos2d(new Pose2d(1, 7, getRotation2d()))));
     }
 
     public void buildAutoChooser() {
@@ -393,12 +409,29 @@ public class pathPlannerDrive extends SubsystemBase {
       );
     }
 
+    public void ResetPoseNextMove(Pose2d pos) {
+      Pose2d resetPose;
+      resetPose = pos;
+      resetPos2d(resetPose);
+    }
+
     public SequentialCommandGroup fixMoveAuto(double kCam, boolean kRotationMode, double timeout) {
       double desiredPos = kCam;
       double fixerTime = timeout;
 
       return new SequentialCommandGroup(
         new RunCommand(() -> {driveChassis(new ChassisSpeeds(-.25, sVision.getMoveVision(desiredPos), getRotationMove(sVision.getVisionAngle())));}).withTimeout(fixerTime)//,
+        // new RunCommand(() -> {driveChassis(new ChassisSpeeds(0, sVision.getMoveVision(desiredPos), getRotationMove(sVision.getVisionAngle())));}).withTimeout(driveTime / 2),
+        // new RunCommand(() -> {driveChassis(new ChassisSpeeds(-.25, 0, 0));}).withTimeout(driveTime / 2)
+      );
+    }
+
+    public SequentialCommandGroup fixMoveAutoQuick(double kCam, double timeout) {
+      double desiredPos = kCam;
+      double fixerTime = timeout;
+
+      return new SequentialCommandGroup(
+        new RunCommand(() -> {driveChassis(new ChassisSpeeds(-.5, sVision.getMoveVision(desiredPos), getRotationMove(sVision.getVisionAngle())));}).withTimeout(fixerTime)//,
         // new RunCommand(() -> {driveChassis(new ChassisSpeeds(0, sVision.getMoveVision(desiredPos), getRotationMove(sVision.getVisionAngle())));}).withTimeout(driveTime / 2),
         // new RunCommand(() -> {driveChassis(new ChassisSpeeds(-.25, 0, 0));}).withTimeout(driveTime / 2)
       );

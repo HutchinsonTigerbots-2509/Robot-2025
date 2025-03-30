@@ -7,7 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "A2M1"
+            "pathName": "JM1"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "MoveVisionAngleLeft 2.5"
           }
         },
         {
@@ -23,15 +29,15 @@
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "A2M2"
+            "name": "Floor 3.0"
           }
         }
       ]
     }
   },
   "resetOdom": false,
-  "folder": "Audience Autos",
+  "folder": "Judge Autos",
   "choreoAuto": false
 }

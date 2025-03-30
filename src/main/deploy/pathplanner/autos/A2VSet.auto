@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "ACGM1"
+            "pathName": "A2VM1"
           }
         },
         {
@@ -43,7 +43,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "ACGM2"
+            "pathName": "A2VM2"
           }
         },
         {
@@ -56,6 +56,12 @@
           "type": "named",
           "data": {
             "name": "ResetAudienceFeederPose"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "A2VM3"
           }
         }
       ]

@@ -1,0 +1,124 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "A2VM1"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "MoveVisionAngleLeft 1.0"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "High 2.0"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Intake Out 0.5"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ResetAudiencePose"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Floor 2.0"
+                }
+              },
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 0.25
+                      }
+                    },
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "A2VM2"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "LoadCreep"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ResetAudienceFeederPose"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "A2VM3"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "BackUpIntake"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "MoveVisionAngleLeft 1.0"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "High 2.0"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Intake Out 0.5"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": false,
+  "folder": "Audience Autos",
+  "choreoAuto": false
+}

@@ -7,13 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "JM2"
+            "pathName": "JGM1"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "MoveVisionAngleLeft 2.5"
+            "name": "MoveVisionAngleLeft 1.0"
           }
         },
         {
@@ -25,13 +25,37 @@
         {
           "type": "named",
           "data": {
-            "name": "Intake Out 1.0"
+            "name": "Intake Out 0.5"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Floor 3.0"
+            "name": "Floor 2.0"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ResetJudgePose"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "JGM2"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "LoadCreep"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "BackUpIntake"
           }
         }
       ]
