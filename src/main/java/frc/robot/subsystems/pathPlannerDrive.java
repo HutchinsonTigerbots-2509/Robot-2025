@@ -134,7 +134,7 @@ public class pathPlannerDrive extends SubsystemBase {
    
        SmartDashboard.putData(autoSelect);
 
-       SmartDashboard.putBoolean("ApplyStart", true);
+       SmartDashboard.putBoolean("ApplyStart", false);
       
        //ApplyStart();
        
@@ -364,9 +364,9 @@ public class pathPlannerDrive extends SubsystemBase {
 
         NamedCommands.registerCommand("Load", new RunCommand(() -> sIntake.intakeSet(.25)).until(() -> sIntake.getDistanceTripped()));
         NamedCommands.registerCommand("LoadCreep", new RunCommand(() -> sIntake.intakeSet(.3)).until(() -> sIntake.getDistanceTripped()).alongWith(new RunCommand(() -> driveChassis(new ChassisSpeeds(.75, 0, 0)))).until(() -> sIntake.getDistanceTripped()));
-        NamedCommands.registerCommand("BackUpIntake", new RunCommand(() -> sIntake.intakeSet(-.25)).withTimeout(.3));
+        NamedCommands.registerCommand("BackUpIntake", new RunCommand(() -> sIntake.intakeSet(-.3)).withTimeout(.3));
         NamedCommands.registerCommand("ResetAudiencePose", new InstantCommand(() -> resetPos2d(new Pose2d(5, 2.9, getRotation2d()))));
-        NamedCommands.registerCommand("ResetJudgePose", new InstantCommand(() -> resetPos2d(new Pose2d(5.2, 5.15, getRotation2d()))));
+        NamedCommands.registerCommand("ResetJudgePose", new InstantCommand(() -> resetPos2d(new Pose2d(5.3, 5.2, getRotation2d()))));
         NamedCommands.registerCommand("ResetAudienceFeederPose", new InstantCommand(() -> resetPos2d(new Pose2d(1, 1, getRotation2d()))));
         NamedCommands.registerCommand("ResetJudgeFeederPose", new InstantCommand(() -> resetPos2d(new Pose2d(1, 7, getRotation2d()))));
     }
